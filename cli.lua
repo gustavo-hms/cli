@@ -75,23 +75,31 @@ string = "string"
 
 local split_at_comma = split_at("(.+),(.*)")
 
+local function hyphens_to_underscores(name)
+	return (name:gsub("-", "_"))
+end
+
+local function underscores_to_hyphens(name)
+	return (name:gsub("_", "-"))
+end
+
+local mandatory_args = {}
+
 function flag(data)
 	data.__type = "flag"
 
 	data.value = data.default
 	data.description = data[1]
 
-	if data.type == boolean then
-		function data:set(argument)
+	function data:set(argument)
+		if data.type == boolean then
 			if argument.value then
 				return errors.not_expecting(argument.value) -- TODO
 			end
 
 			self.value = true
-		end
 
-	elseif data.type == number then
-		function data:set(argument)
+		elseif data.type == number then
 			if not argument.value then
 				return errors.missing_value() -- TODO
 			end
@@ -101,16 +109,16 @@ function flag(data)
 			if not self.value then
 				return errors.not_a_number(argument.value) -- TODO
 			end
-		end
 
-	else
-		function data:set(argument)
+		else
 			if not argument.value then
 				return errors.missing_value() -- TODO
 			end
 
 			self.value = argument.value
 		end
+
+		mandatory_args[self.long_name_with_hyphens] = nil
 	end
 
 	function data:name(name)
@@ -120,21 +128,14 @@ function flag(data)
 		self.short_name = short
 		self.long_name_with_hyphens = long
 		self.long_name_with_underscores = hyphens_to_underscores(long)
+
+		if not self.default then
+			-- If it doesn't have a default value, it's mandatory
+			mandatory_args[self.long_name_with_hyphens] = true
+		end
 	end
 
 	return data
-end
-
-local function is_flag(t)
-	return t.__type and t.__type == "flag"
-end
-
-local function hyphens_to_underscores(name)
-	return (name:gsub("-", "_"))
-end
-
-local function underscores_to_hyphens(name)
-	return (name:gsub("_", "-"))
 end
 
 function flag_named(name)
@@ -146,6 +147,10 @@ function flag_named(name)
 	end
 end
 
+local function is_flag(t)
+	return t.__type and t.__type == "flag"
+end
+
 function positional(name)
 	return function(data)
 		data.__type = "positional"
@@ -154,6 +159,11 @@ function positional(name)
 		data.name_with_underscores = hyphens_to_underscores(name)
 		data.description = data[0]
 
+		if not data.default then
+			-- If it doesn't have a default value, it's mandatory
+			mandatory_args[data.name_with_hyphens] = true
+		end
+
 		function data:add(value)
 			if self.many then
 				self.value = self.value or {}
@@ -161,6 +171,8 @@ function positional(name)
 			else
 				self.value = value
 			end
+
+			mandatory_args[self.name_with_hyphens] = nil
 		end
 
 		return data
@@ -176,7 +188,6 @@ end
 local function command_args(cmd)
 	local args = {}
 
-	-- The last element of the cmd table must be the function
 	for _, argument in cmd do
 		-- Flags will be stored as key,value pairs. Positional arguments will
 		-- be stored as an array, ordered.
@@ -265,6 +276,10 @@ local function program(cmd)
 			end
 		end
 	end
+
+	-- TODO verificar argumentos obrigatórios
+	-- Não daria pra montar uma lista de argumentos obrigatórios no momento da
+	-- definição deles?
 
 	os.exit(cmd.fn and cmd.fn())
 end
