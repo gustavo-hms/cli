@@ -5,14 +5,14 @@ describe("The #flag function", function()
 		local flag = cli.flag {
 			"Descrição",
 
-			type = cli.boolean,
-			default = true
+			type = cli.string,
+			default = "opa!"
 		}
 
 		local expected = {
 			description = "Descrição",
-			type = cli.boolean,
-			value = true
+			type = cli.string,
+			value = "opa!"
 		}
 
 		for k in pairs(expected) do
@@ -61,7 +61,7 @@ describe("The #flag_named function", function()
 		end
 	end)
 
-	it("should allow only short names", function()
+	it("should allow prescribing short names only", function()
 		local flag = cli.flag_named "p" {
 			"Outra flag",
 
@@ -83,7 +83,7 @@ describe("The #flag_named function", function()
 		end
 	end)
 
-	it("should allow only long names", function()
+	it("should allow prescribing long names only", function()
 		local flag = cli.flag_named "por-dia" {
 			"Outra flag",
 
@@ -107,6 +107,43 @@ end)
 
 describe("The #positional function", function()
 	it("should build the prescribed positional argument", function()
+		local positional = cli.positional "este-aqui" {
+			"Cada argumento...",
 
+			type = cli.string,
+			default = "nenhum"
+		}
+
+		local expected = {
+			description = "Cada argumento...",
+			type = cli.string,
+			value = "nenhum",
+			name_with_hyphens = "este-aqui",
+			name_with_underscores = "este_aqui"
+		}
+
+		for k in pairs(expected) do
+			assert.is.equal(expected[k], positional[k])
+		end
+	end)
+
+	it("shouldn't set `value` if there isn't a default value", function()
+		local positional = cli.positional "este-aqui" {
+			"Cada argumento...",
+
+			type = cli.string,
+		}
+
+		assert.is_nil(positional.value)
+	end)
+
+	it("should take into account the `many` option", function()
+		local positional = cli.positional "este-aqui" {
+			type = cli.number,
+			default = 17,
+			many = true
+		}
+
+		assert.is.equal({17}, positional.value)
 	end)
 end)
