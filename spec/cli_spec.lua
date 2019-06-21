@@ -39,68 +39,70 @@ describe("The #flag function", function()
 end)
 
 describe("The #flag_named function", function()
-	local scenarios = {
-		{
-			description = "should set the name of the flag",
-			flag = cli.flag_named "p,por-dia" {
-				"Outra flag",
+	it("should set the name of the flag", function()
+		local flag = cli.flag_named "p,por-dia" {
+			"Outra flag",
 
-				type = cli.number,
-				default = 17
-			},
-			expected = {
-				description = "Outra flag",
-				type = cli.number,
-				value = 17,
-				short_name = "p",
-				long_name_with_hyphens = "por-dia",
-				long_name_with_underscores = "por_dia"
-			}
-
-		},
-		{
-			description = "should allow only short names",
-			flag = cli.flag_named "p" {
-				"Outra flag",
-
-				type = cli.number,
-				default = 17
-			},
-			expected = {
-				description = "Outra flag",
-				type = cli.number,
-				value = 17,
-				short_name = "p",
-				long_name_with_hyphens = "p",
-				long_name_with_underscores = "p"
-			}
-
-		},
-		{
-			description = "should allow only long names",
-			flag = cli.flag_named "por-dia" {
-				"Outra flag",
-
-				type = cli.number,
-				default = 17
-			},
-			expected = {
-				description = "Outra flag",
-				type = cli.number,
-				value = 17,
-				long_name_with_hyphens = "por-dia",
-				long_name_with_underscores = "por_dia"
-			}
+			type = cli.number,
+			default = 17
 		}
-	}
 
-	for _, scenario in ipairs(scenarios) do
-		it(scenario.description, function()
-			for k in pairs(scenario.expected) do
-				assert.is.equal(scenario.expected[k], scenario.flag[k])
-			end
-		end)
-	end
+		local expected = {
+			description = "Outra flag",
+			type = cli.number,
+			value = 17,
+			short_name = "p",
+			long_name_with_hyphens = "por-dia",
+			long_name_with_underscores = "por_dia"
+		}
+
+		for k in pairs(expected) do
+			assert.is.equal(expected[k], flag[k])
+		end
+	end)
+
+	it("should allow only short names", function()
+		local flag = cli.flag_named "p" {
+			"Outra flag",
+
+			type = cli.number,
+			default = 17
+		}
+
+		local expected = {
+			description = "Outra flag",
+			type = cli.number,
+			value = 17,
+			short_name = "p",
+			long_name_with_hyphens = "p",
+			long_name_with_underscores = "p"
+		}
+
+		for k in pairs(expected) do
+			assert.is.equal(expected[k], flag[k])
+		end
+	end)
+
+	it("should allow only long names", function()
+		local flag = cli.flag_named "por-dia" {
+			"Outra flag",
+
+			type = cli.number,
+			default = 17
+		}
+
+		local expected = {
+			description = "Outra flag",
+			type = cli.number,
+			value = 17,
+			long_name_with_hyphens = "por-dia",
+			long_name_with_underscores = "por_dia"
+		}
+
+		for k in pairs(expected) do
+			assert.is.equal(expected[k], flag[k])
+		end
+	end)
 end)
 
 describe("The #positional function", function()
