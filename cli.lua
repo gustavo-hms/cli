@@ -78,7 +78,7 @@ boolean = "boolean"
 number = "number"
 string = "string"
 
-local split_at_comma = split_at("(.+),(.*)")
+local split_at_comma = split_at("([^,]+),?(.*)")
 
 local function hyphens_to_underscores(name)
 	return (name:gsub("-", "_"))
