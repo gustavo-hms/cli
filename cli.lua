@@ -153,7 +153,7 @@ function flag_named(name)
 end
 
 local function is_flag(t)
-	return t.__type and t.__type == "flag"
+	return type(t) == "table" and t.__type and t.__type == "flag"
 end
 
 function positional(name)
@@ -185,7 +185,7 @@ function positional(name)
 end
 
 local function is_positional(t)
-	return t.__type and t.__type == "positional"
+	return type(t) == "table" and t.__type and t.__type == "positional"
 end
 
 -- Commands
