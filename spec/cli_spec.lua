@@ -201,12 +201,12 @@ describe("The #command function", function()
 			local command = cli.command {
 				"Documentação in loco",
 
-				["s,second-flag"] = cli.flag {
-					"O que faz",
+				cli.flag_named "third-flag" {
+					"A ordem conta",
 
-					type = cli.number,
-					default = 7
-				}
+					type = cli.string,
+					default = "terceira"
+				},
 			}
 
 			assert.is_not_nil(command.args["third-flag"])
