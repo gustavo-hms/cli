@@ -1,6 +1,7 @@
 local os = os
 local type = type
 local pairs = pairs
+local ipairs = ipairs
 
 local _ENV = {}
 
@@ -192,7 +193,7 @@ end
 local function command_args(cmd)
 	local args = {}
 
-	for _, argument in pairs(cmd) do
+	for _, argument in ipairs(cmd) do
 		-- Flags will be stored as key,value pairs. Positional arguments will
 		-- be stored as an array, ordered.
 		if is_flag(argument) then
