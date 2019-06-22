@@ -147,3 +147,84 @@ describe("The #positional function", function()
 		assert.is.equal({17}, positional.value)
 	end)
 end)
+
+local function keys(t)
+	local ks = {}
+
+	for k in pairs(t) do
+		ks[#ks + 1] = k
+	end
+
+	return ks
+end
+
+describe("The #command function", function()
+	local command = cli.command {
+		"Documentação in loco",
+
+		first_flag = cli.flag {
+			"Explicação da primeira flag",
+
+			type = cli.boolean
+		},
+
+		["s,second-flag"] = cli.flag {
+			"O que faz",
+
+			type = cli.number,
+			default = 7
+		},
+
+		cli.flag_named "third-flag" {
+			"A ordem conta",
+
+			type = cli.string,
+			default = "terceira"
+		},
+
+		cli.positional "file" {
+			"The file to be edited",
+
+			type = cli.string
+		},
+
+		function()
+			return 17
+		end
+	}
+
+	it("should group all the args", function()
+		assert.is_not_nil(command.args)
+		assert.is.equal(4, #keys(command.args))
+
+		assert.is_not_nil(command.args["first-flag"])
+		assert.is.equal(
+			"Explicação da primeira flag",
+			command.args["first-flag"].description
+		)
+
+		assert.is_not_nil(command.args["second-flag"])
+		assert.is.equal(
+			"O que faz",
+			command.args["second-flag"].description
+		)
+
+		assert.is_not_nil(command.args["third-flag"])
+		assert.is.equal(
+			"A ordem conta",
+			command.args["third-flag"].description
+		)
+
+		assert.is_not_nil(command.args["file"])
+		assert.is.equal(
+			"The file to be edited",
+			command.args["file"].description
+		)
+	end)
+
+	it("should set the commands' function", function()
+		assert.is_not_nil(command.fn)
+		assert.is.equal("function", type(command.fn))
+		assert.is.equal(17, command.fn())
+	end)
+end)
