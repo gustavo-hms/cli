@@ -6,7 +6,7 @@ local function split_at(pattern)
 	return function(text)
 		local left, right = text:match(pattern)
 
-		if #right == 0 then
+		if not right or #right == 0 then
 			return left
 		end
 
