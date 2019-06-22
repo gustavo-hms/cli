@@ -1,5 +1,8 @@
 local os = os
+local type = type
+
 local _ENV = {}
+
 -- Flags
 
 local function split_at(pattern)
