@@ -151,7 +151,8 @@ function positional(name)
 
 		data.name_with_hyphens = name
 		data.name_with_underscores = hyphens_to_underscores(name)
-		data.description = data[0]
+		data.description = data[1]
+		data.value = data.default
 
 		function data:add(value)
 			if self.many then
