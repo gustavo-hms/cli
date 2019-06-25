@@ -84,15 +84,18 @@ local function underscores_to_hyphens(name)
 end
 
 function flag(data)
-	data.__type = "flag"
+	local flg = {
+		__type = "flag",
 
-	data.value = data.default
+		type = data.type,
+		value = data.default
+	}
 
 	if type(data[1]) == "string" then
-		data.description = data[1]
+		flg.description = data[1]
 	end
 
-	function data:set(argument)
+	function flg:set(argument)
 		if data.type == boolean then
 			if argument.value then
 				return errors.not_expecting(argument.value) -- TODO
@@ -120,7 +123,7 @@ function flag(data)
 		end
 	end
 
-	function data:name(name)
+	function flg:name(name)
 		local short, long = split_at_comma(name)
 		long = long or short
 
@@ -129,7 +132,7 @@ function flag(data)
 		self.long_name_with_underscores = hyphens_to_underscores(long)
 	end
 
-	return data
+	return flg
 end
 
 function flag_named(name)
@@ -147,14 +150,17 @@ end
 
 function positional(name)
 	return function(data)
-		data.__type = "positional"
+		local pos = {
+			__type = "positional",
 
-		data.name_with_hyphens = name
-		data.name_with_underscores = hyphens_to_underscores(name)
-		data.description = data[1]
-		data.value = data.default
+			name_with_hyphens = name,
+			name_with_underscores = hyphens_to_underscores(name),
+			description = data[1],
+			type = data.type,
+			value = data.default
+		}
 
-		function data:add(value)
+		function pos:add(value)
 			if self.many then
 				self.value = self.value or {}
 				self.value[#self.value + 1] = value
@@ -163,7 +169,7 @@ function positional(name)
 			end
 		end
 
-		return data
+		return pos
 	end
 end
 
