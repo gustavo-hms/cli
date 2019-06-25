@@ -12,8 +12,8 @@ local function command_args(cmd)
 	-- be stored as an array, ordered.
 	for name, argument in pairs(cmd) do
 		if args.is_flag(argument) then
-    		if type(name) ~= "number" then
-    			argument:name(name)
+			if type(name) ~= "number" then
+				argument:name(name)
 			end
 
 			arguments[argument.short_name] = argument
@@ -31,15 +31,20 @@ end
 local commands_defined = false
 
 local function anonymous_command(data)
-	data.__type = "command"
+	local cmd = {
+		__type = "command",
+		args = command_args(data)
+	}
 
-	local first = data[1]
-	data.description = type(first) == "string" and first or nil
-	data.args = command_args(data)
-	local fn = data[#data]
-	data.fn = type(fn) == "function" and fn or nil
+	if type(data[1]) == "string" then
+		cmd.description = data[1]
+	end
 
-	return data
+	if type(data[#data]) == "function" then
+		cmd.fn = data[#data]
+	end
+
+	return cmd
 end
 
 function command(data)
