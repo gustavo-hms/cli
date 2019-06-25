@@ -6,73 +6,14 @@ boolean = "boolean"
 number = "number"
 string = "string"
 
-local function split_at(pattern)
-	return function(text)
-		local left, right = text:match(pattern)
+function split_at_comma(text)
+	local left, right = text:match("([^,]+),?(.*)")
 
-		if not right or #right == 0 then
-			return left
-		end
-
-		return left, right
-	end
-end
-
-local split_at_equal_sign = split_at("-?-?([^=]+)=?(.*)")
-local split_at_comma = split_at("([^,]+),?(.*)")
-
-
-local function starts_with_hyphen(text)
-	return text:sub(1,1) == "-"
-end
-
-local function arguments()
-	local flag_value = nil
-	local new_arg = nil
-
-	local new_flag = function(arg_index, args)
-		local item = arg[arg_index]
-		local left, right = split_at_equal_sign(item)
-		args[#args + 1] = { name = left, value = right }
-
-		if right then
-			return new_arg(arg_index + 1, args)
-		end
-
-		return flag_value(arg_index + 1, args)
+	if not right or #right == 0 then
+		return left
 	end
 
-	flag_value = function(arg_index, args)
-		local item = arg[arg_index]
-
-		if item == "=" then
-			arg_index = arg_index + 1
-			item = arg[arg_index]
-		end
-
-		if item and not starts_with_hyphen(item) then
-			args[#args].value = item
-			arg_index = arg_index + 1
-		end
-
-		return new_arg(arg_index, args)
-	end
-
-	new_arg = function(arg_index, args)
-		local item = arg[arg_index]
-
-		if not item then return args end
-
-		if starts_with_hyphen(item) then
-			return new_flag(arg_index, args)
-		end
-
-		args[#args + 1] = { positional = item }
-
-		return new_arg(arg_index + 1, args)
-	end
-
-	return new_arg(1, {})
+	return left, right
 end
 
 local function hyphens_to_underscores(name)
