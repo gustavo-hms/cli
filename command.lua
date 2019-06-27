@@ -69,6 +69,10 @@ local function anonymous_command(data)
 				end
 
 			else
+				if input_arg.name == "help" then
+					return "help"
+				end
+
 				local flag = self.args[input_arg.name]
 
 				if not flag then

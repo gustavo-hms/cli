@@ -130,5 +130,48 @@ describe("The #command function", function()
 			assert.is.equal("valoroso", command.values.first_flag)
 			assert.is.equal(17, command.values.second_flag)
 		end)
+
+		it("should detect a `help` flag", function()
+			local command = cmd.command {
+				"Documentação",
+
+				first_flag = args.flag {
+					"Primeira",
+
+					type = args.string
+				},
+
+				second_flag = args.flag {
+					"Segunda",
+
+					type = args.number
+				},
+
+				args.flag_named "third-flag" {
+					"Terceira",
+
+					type = args.boolean
+				},
+
+				args.positional "file" {
+					"Arquivo",
+
+					type = args.string
+				}
+			}
+
+			local input_args = {
+				{ positional = "code.lua" },
+				{ name = "third-flag" },
+				{ name = "help" },
+				{ name = "first-flag", value = "valoroso" },
+				{ name = "second-flag", value = 17 }
+			}
+
+			local help, unset = command:set_arguments(input_args)
+
+			assert.is_nil(unset)
+			assert.is.equal("help", help)
+		end)
 	end)
 end)
