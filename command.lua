@@ -32,11 +32,11 @@ end
 -- Flag to know whether the program has subcommands
 local commands_defined = false
 
-function has_commands()
+function has_subcommands()
     return commands_defined
 end
 
-local function anonymous_command(data)
+function anonymous(data)
 	local cmd = {
 		__type = "command",
 		args = command_args(data)
@@ -124,7 +124,7 @@ function command(data)
 	-- it.
 	local meta = {
 		__index = function(t, index)
-			local anon = anonymous_command(data)
+			local anon = anonymous(data)
 
 			anon.__index = anon
 			setmetatable(t, anon)
