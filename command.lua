@@ -87,6 +87,13 @@ local function anonymous_command(data)
 
 		if #unset == 0 then
 			unset = nil
+
+			-- Build a table with all the values. This is the table the user of
+			-- the module will receive after the arguments' parsing
+			self.values = {}
+			for _, arg in pairs(self.args) do
+				self.values[arg.name_with_underscores] = arg.value
+			end
 		end
 
 		if #unknown_args == 0 then
