@@ -121,10 +121,10 @@ describe("The #command function", function()
 				{ name = "second-flag", value = 17 }
 			}
 
-			local unset, unknown = command:set_arguments(input_args)
+			local unknown, unset = command:set_arguments(input_args)
 
-			assert.is_nil(unset)
 			assert.is_nil(unknown)
+			assert.is_nil(unset)
 			assert.is.equal("code.lua", command.values.file)
 			assert.is.equal(true, command.values.third_flag)
 			assert.is.equal("valoroso", command.values.first_flag)

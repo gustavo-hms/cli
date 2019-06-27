@@ -77,16 +77,16 @@ local function anonymous_command(data)
 			end
 		end
 
-		local unset = {}
+		local unset_args = {}
 
 		for _, arg in pairs(self.args) do
 			if not arg.value then
-				unset[#unset + 1] = arg
+				unset_args[#unset_args + 1] = arg
 			end
 		end
 
-		if #unset == 0 then
-			unset = nil
+		if #unset_args == 0 then
+			unset_args = nil
 
 			-- Build a table with all the values. This is the table the user of
 			-- the module will receive after the arguments' parsing
@@ -100,7 +100,7 @@ local function anonymous_command(data)
 			unknown_args = nil
 		end
 
-		return unset, unknown_args
+		return unknown_args, unset_args
 	end
 
 	return cmd
