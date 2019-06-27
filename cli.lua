@@ -1,6 +1,4 @@
 local os = os
-local type = type
-local pairs = pairs
 local ipairs = ipairs
 
 local args = require "args"

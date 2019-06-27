@@ -95,8 +95,8 @@ describe("The #flag_named function", function()
 			description = "Outra flag",
 			type = args.number,
 			value = 17,
-			long_name_with_hyphens = "por-dia",
-			long_name_with_underscores = "por_dia"
+			name_with_hyphens = "por-dia",
+			name_with_underscores = "por_dia"
 		}
 
 		for k in pairs(expected) do

@@ -1,16 +1,6 @@
 cmd = require "command"
 args = require "args"
 
-local function keys(t)
-	local ks = {}
-
-	for k in pairs(t) do
-		ks[#ks + 1] = k
-	end
-
-	return ks
-end
-
 describe("The #command function", function()
 	describe("when setting an argument", function()
 		it("should put a flag on the right place in the table", function()
@@ -92,5 +82,54 @@ describe("The #command function", function()
 		assert.is_not_nil(command.fn)
 		assert.is.equal("function", type(command.fn))
 		assert.is.equal(17, command.fn())
+	end)
+
+	describe("when setting the arguments' values", function()
+		it("should set all the values", function()
+			local command = cmd.command {
+				"Documentação",
+
+				first_flag = args.flag {
+					"Primeira",
+
+					type = args.string
+				},
+
+				second_flag = args.flag {
+					"Segunda",
+
+					type = args.number
+				},
+
+				args.flag_named "third-flag" {
+					"Terceira",
+
+					type = args.boolean
+				},
+
+				args.positional "file" {
+					"Arquivo",
+
+					type = args.string
+				}
+			}
+
+			local input_args = {
+				{ positional = "code.lua" },
+				{ name = "third-flag" },
+				{ name = "first-flag", value = "valoroso" },
+				{ name = "second-flag", value = 17 }
+			}
+
+			local unset, unknown = command:set_arguments(input_args)
+
+			assert.is_nil(unset)
+			assert.is_nil(unknown)
+
+			assert.is.equal("code.lua", command.args[1].value)
+			assert.is.equal(true, command.args["third-flag"].value)
+			assert.is.equal("valoroso", command.args["first-flag"].value)
+			assert.is.equal(17, command.args["second-flag"].value)
+		end)
 	end)
 end)

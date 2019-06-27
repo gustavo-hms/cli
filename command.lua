@@ -17,7 +17,7 @@ local function command_args(cmd)
 			end
 
 			arguments[argument.short_name] = argument
-			arguments[argument.long_name_with_hyphens] = argument
+			arguments[argument.name_with_hyphens] = argument
 
 		elseif args.is_positional(argument) then
 			arguments[#arguments + 1] = argument
@@ -29,6 +29,10 @@ end
 
 -- Flag to know whether the program has subcommands
 local commands_defined = false
+
+function has_commands()
+    return commands_defined
+end
 
 local function anonymous_command(data)
 	local cmd = {
@@ -42,6 +46,54 @@ local function anonymous_command(data)
 
 	if type(data[#data]) == "function" then
 		cmd.fn = data[#data]
+	end
+
+	function cmd:set_arguments(input_args)
+		local unknown_args = {}
+		local current_positional = 1
+
+		for _, input_arg in ipairs(input_args) do
+			if input_arg.positional then
+				local pos = self.args[current_positional]
+
+				if not pos then
+					unknown_args[#unknown_args + 1] = input_arg
+				else
+					local err = pos:add(input_arg.positional) -- TODO
+
+					if not pos.many then
+						current_positional = current_positional + 1
+					end
+				end
+
+			else
+				local flag = self.args[input_arg.name]
+
+				if not flag then
+					unknown_args[#unknown_args + 1] = input_arg
+				else
+					local err = flag:set(input_arg.value) -- TODO
+				end
+			end
+		end
+
+		local unset = {}
+
+		for _, arg in pairs(self.args) do
+			if not arg.value then
+				unset[#unset + 1] = arg
+			end
+		end
+
+		if #unset == 0 then
+			unset = nil
+		end
+
+		if #unknown_args == 0 then
+			unknown_args = nil
+		end
+
+		return unset, unknown_args
 	end
 
 	return cmd

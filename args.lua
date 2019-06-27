@@ -1,4 +1,5 @@
 local type = type
+local tonumber = tonumber
 
 local _ENV = {}
 
@@ -36,31 +37,29 @@ function flag(data)
 		flg.description = data[1]
 	end
 
-	function flg:set(argument)
-		if data.type == boolean then
-			if argument.value then
-				return errors.not_expecting(argument.value) -- TODO
+	function flg:set(value)
+		if self.type == boolean then
+			if value then
+				return errors.not_expecting(value) -- TODO
 			end
 
 			self.value = true
 
-		elseif data.type == number then
-			if not argument.value then
-				return errors.missing_value() -- TODO
-			end
-
-			self.value = tonumber(argument.value)
-
-			if not self.value then
-				return errors.not_a_number(argument.value) -- TODO
-			end
-
 		else
-			if not argument.value then
+			if not value then
 				return errors.missing_value() -- TODO
 			end
 
-			self.value = argument.value
+			if self.type == number then
+				self.value = tonumber(value)
+
+				if not self.value then
+					return errors.not_a_number(value) -- TODO
+				end
+
+			else
+				self.value = value
+			end
 		end
 	end
 
@@ -69,8 +68,8 @@ function flag(data)
 		long = long or short
 
 		self.short_name = short
-		self.long_name_with_hyphens = underscores_to_hyphens(long)
-		self.long_name_with_underscores = hyphens_to_underscores(long)
+		self.name_with_hyphens = underscores_to_hyphens(long)
+		self.name_with_underscores = hyphens_to_underscores(long)
 	end
 
 	return flg
@@ -98,6 +97,7 @@ function positional(name)
 			name_with_underscores = hyphens_to_underscores(name),
 			description = data[1],
 			type = data.type,
+			many = data.many,
 			value = data.default
 		}
 
