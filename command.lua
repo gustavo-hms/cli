@@ -3,6 +3,8 @@ local args = require "args"
 local type = type
 local ipairs = ipairs
 local pairs = pairs
+local setmetatable = setmetatable
+
 local _ENV = {}
 
 local function command_args(cmd)
@@ -109,7 +111,31 @@ end
 function command(data)
 	commands_defined = true
 
-	return anonymous_command(data)
+	local cmd = {
+		__type = "command"
+	}
+
+	-- The commands are lazy-loaded. When it's first accessed, the following
+	-- metatable is used, which builds the anonymous command and changes the metatable to
+	-- it.
+	local meta = {
+		__index = function(t, index)
+			local anon = anonymous_command(data)
+
+			anon.__index = anon
+			setmetatable(t, anon)
+
+			return anon[index]
+		end
+	}
+
+	setmetatable(cmd, meta)
+
+	return cmd
+end
+
+function is_command(t)
+	return type(t) == "table" and t.__type and t.__type == "command"
 end
 
 return _ENV
