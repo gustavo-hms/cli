@@ -1,5 +1,39 @@
 local args = require "args"
 
+insulate("The #input function", function()
+	it("should group args in a normal execution", function()
+		args.arg = { "--um", "=", "1", "--dois=doze", "--tres", "-q=4", "cinco" }
+
+		local result = args.input()
+
+		local expected = {
+			{ name = "um", value = "1" },
+			{ name = "dois", value = "doze" },
+			{ name = "tres" },
+			{ name = "q", value = "4" },
+			{ positional = "cinco" }
+		}
+
+		assert.are.same(expected, result)
+	end)
+
+	it("should parses successfully a misbehaved input", function()
+		args.arg = { "--um", "=", "--dois=", "--tres", "-q=", "4", "cinco" }
+
+		local result = args.input()
+
+		local expected = {
+			{ name = "um" },
+			{ name = "dois" },
+			{ name = "tres" },
+			{ name = "q", value = "4" },
+			{ positional = "cinco" }
+		}
+
+		assert.are.same(expected, result)
+	end)
+end)
+
 describe("The #flag function", function()
 	it("should build the prescribed object", function()
 		local flag = args.flag {

@@ -1,8 +1,6 @@
-local type = type
-local tonumber = tonumber
-local arg = arg
-
-local _ENV = {}
+local M = {}
+setmetatable(M, {__index = _G})
+local _ENV = M
 
 boolean = "boolean"
 number = "number"
@@ -27,6 +25,7 @@ local function starts_with_hyphen(text)
 	return text:sub(1,1) == "-"
 end
 
+-- Parses the command line arguments
 function input()
 	local flag_value = nil
 	local new_arg = nil
