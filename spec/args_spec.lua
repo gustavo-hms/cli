@@ -4,7 +4,7 @@ insulate("The #input function", function()
 	it("should group args in a normal execution", function()
 		args.arg = { "--um", "=", "1", "--dois=doze", "--tres", "-q=4", "cinco" }
 
-		local result = args.input()
+		local result, help = args.input()
 
 		local expected = {
 			{ name = "um", value = "1" },
@@ -15,12 +15,13 @@ insulate("The #input function", function()
 		}
 
 		assert.are.same(expected, result)
+		assert.is_falsy(help)
 	end)
 
 	it("should parses successfully a misbehaved input", function()
 		args.arg = { "--um", "=", "--dois=", "--tres", "-q=", "4", "cinco" }
 
-		local result = args.input()
+		local result, help = args.input()
 
 		local expected = {
 			{ name = "um" },
@@ -31,6 +32,24 @@ insulate("The #input function", function()
 		}
 
 		assert.are.same(expected, result)
+		assert.is_falsy(help)
+	end)
+
+	it("should detect a help flag", function()
+		args.arg = { "--um", "=", "1", "--help", "--dois=doze", "--tres", "-q=4", "cinco" }
+
+		local result, help = args.input()
+
+		local expected = {
+			{ name = "um", value = "1" },
+			{ name = "dois", value = "doze" },
+			{ name = "tres" },
+			{ name = "q", value = "4" },
+			{ positional = "cinco" }
+		}
+
+		assert.are.same(expected, result)
+		assert.is_true(help)
 	end)
 end)
 

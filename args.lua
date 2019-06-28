@@ -27,13 +27,18 @@ end
 
 -- Parses the command line arguments
 function input()
-	local flag_value = nil
-	local new_arg = nil
+	local flag_value, new_arg
+	local help = false
 
 	local new_flag = function(arg_index, args)
 		local item = arg[arg_index]
 		local left, right = split_at_equal_sign(item)
-		args[#args + 1] = { name = left, value = right }
+
+		if left == "help" then
+			help = true
+		else
+			args[#args + 1] = { name = left, value = right }
+		end
 
 		if right then
 			return new_arg(arg_index + 1, args)
@@ -72,7 +77,7 @@ function input()
 		return new_arg(arg_index + 1, args)
 	end
 
-	return new_arg(1, {})
+	return new_arg(1, {}), help
 end
 
 local function hyphens_to_underscores(name)
@@ -158,7 +163,7 @@ function positional(name)
 		local pos = {
 			__type = "positional",
 
-			name_with_hyphens = name,
+			name_with_hyphens = underscores_to_hyphens(name),
 			name_with_underscores = hyphens_to_underscores(name),
 			description = data[1],
 			type = data.type,
