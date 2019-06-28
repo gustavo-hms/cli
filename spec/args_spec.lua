@@ -54,6 +54,14 @@ describe("The #flag function", function()
 		end
 	end)
 
+	it("should set a boolean flag with `false` if there's no default value", function()
+		local flag = args.flag {
+			type = args.boolean
+		}
+
+		assert.is_false(flag.value)
+	end)
+
 	it("shouldn't set `value` if there isn't a default value", function()
 		local flag = args.flag {
 			type = args.number

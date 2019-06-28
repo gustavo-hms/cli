@@ -87,9 +87,16 @@ function flag(data)
 	local flg = {
 		__type = "flag",
 
-		type = data.type,
-		value = data.default
+		type = data.type
 	}
+
+	-- All flags without a default value are mandatory except for boolean flags,
+	-- which are false by default
+	if data.type == boolean then
+		flg.value = false
+	else
+		flg.value = data.default
+	end
 
 	if type(data[1]) == "string" then
 		flg.description = data[1]
