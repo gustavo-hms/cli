@@ -1,11 +1,53 @@
 local args = require "args"
+local errors = require "errors"
 
 local type = type
 local ipairs = ipairs
 local pairs = pairs
 local setmetatable = setmetatable
+local exit = os.exit
+local _G = _G
 
 local _ENV = {}
+
+local function command_list()
+	local cmds = {}
+
+	for name, value in pairs(_G) do
+		if is_command(value) then
+			cmds[#cmds + 1] = name
+		end
+	end
+
+	return cmds
+end
+
+function load(input_args)
+	local command_name = nil
+
+	for _, arg in ipairs(input_args) do
+		if arg.positional then
+			command_name = arg.positional
+			break
+		end
+	end
+
+	if not command_name then
+		local err = errors.command_not_provided(command_list())
+		err:print()
+		exit(err.code)
+	end
+
+	local command = _G[command_name]
+
+	if not command then
+		local err = errors.unknown_command(command_name, command_list())
+		err:print()
+		exit(err.code)
+	end
+
+	return command
+end
 
 local function command_args(cmd)
 	local arguments = {}
