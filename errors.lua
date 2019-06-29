@@ -3,6 +3,7 @@ local setmetatable = setmetatable
 local ipairs = ipairs
 local stderr = io.stderr
 local tostring = tostring
+local exit = os.exit
 
 local _ENV = {}
 
@@ -14,9 +15,9 @@ local translations = {
 
 		missing_value = "Nenhum valor informado para a opção “%s”.",
 
-		command_not_provided = "Erro: não foi informado qual comando executar. As opções disponíveis são:\n\n%s\n",
+		command_not_provided = "Erro: não foi informado qual comando executar. Os comandos disponíveis são:\n\n%s\n",
 
-		unknown_command = "Erro: o comando “%s” não existe. Os possíveis valores são:\n\n%s\n"
+		unknown_command = "Erro: o comando “%s” não existe. Os comandos disponíveis são:\n\n%s\n"
 	}
 }
 
@@ -39,6 +40,11 @@ function print(err)
 	stderr:write(tostring(err))
 end
 
+function exit_with(err)
+	print(err)
+	exit(err.code)
+end
+
 local function list(available_commands)
 	local text = {}
 
@@ -57,10 +63,7 @@ function command_not_provided(available_commands)
 		end
 	}
 
-	local err = {
-		code = codes.command_not_provided,
-		print = print
-	}
+	local err = { code = codes.command_not_provided }
 
 	return setmetatable(err, meta)
 end
@@ -73,11 +76,7 @@ function unknown_command(name, available_commands)
 		end
 	}
 
-	local err = {
-		code = codes.unknown_command,
-		print = print
-	}
-
+	local err = { code = codes.unknown_command }
 	return setmetatable(err, meta)
 end
 

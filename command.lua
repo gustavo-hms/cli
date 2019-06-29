@@ -5,7 +5,7 @@ local type = type
 local ipairs = ipairs
 local pairs = pairs
 local setmetatable = setmetatable
-local exit = os.exit
+local sort = table.sort
 local _G = _G
 
 local _ENV = {}
@@ -18,6 +18,8 @@ local function command_list()
 			cmds[#cmds + 1] = name
 		end
 	end
+
+	sort(cmds)
 
 	return cmds
 end
@@ -34,16 +36,14 @@ function load(input_args)
 
 	if not command_name then
 		local err = errors.command_not_provided(command_list())
-		err:print()
-		exit(err.code)
+		errors.exit_with(err)
 	end
 
 	local command = _G[command_name]
 
-	if not command then
+	if not is_command(command) then
 		local err = errors.unknown_command(command_name, command_list())
-		err:print()
-		exit(err.code)
+		errors.exit_with(err)
 	end
 
 	return command
