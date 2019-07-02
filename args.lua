@@ -88,7 +88,7 @@ local function underscores_to_hyphens(name)
 	return (name:gsub("_", "-"))
 end
 
-function flag(data)
+local function anonymous_flag(data)
 	local flg = {
 		__type = "flag",
 
@@ -133,29 +133,25 @@ function flag(data)
 		end
 	end
 
-	function flg:name(name)
-		local short, long = split_at_comma(name)
-		long = long or short
-
-		self.short_name = short
-		self.name_with_hyphens = underscores_to_hyphens(long)
-		self.name_with_underscores = hyphens_to_underscores(long)
-	end
-
 	return flg
 end
 
-function flag_named(name)
+function flag(name)
 	return function(data)
-		local flg = flag(data)
-		flg:name(name)
+		local flg = anonymous_flag(data)
+		local short, long = split_at_comma(name)
+		long = long or short
+
+		flg.short_name = short
+		flg.name_with_hyphens = underscores_to_hyphens(long)
+		flg.name_with_underscores = hyphens_to_underscores(long)
 
 		return flg
 	end
 end
 
 function is_flag(t)
-	return type(t) == "table" and t.__type and t.__type == "flag"
+	return type(t) == "table" and t.__type == "flag"
 end
 
 function positional(name)
@@ -185,7 +181,7 @@ function positional(name)
 end
 
 function is_positional(t)
-	return type(t) == "table" and t.__type and t.__type == "positional"
+	return type(t) == "table" and t.__type == "positional"
 end
 
 return _ENV

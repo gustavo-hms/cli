@@ -55,7 +55,7 @@ end)
 
 describe("The #flag function", function()
 	it("should build the prescribed object", function()
-		local flag = args.flag {
+		local flag = args.flag "name" {
 			"Descrição",
 
 			type = args.string,
@@ -74,7 +74,7 @@ describe("The #flag function", function()
 	end)
 
 	it("should set a boolean flag with `false` if there's no default value", function()
-		local flag = args.flag {
+		local flag = args.flag "name" {
 			type = args.boolean
 		}
 
@@ -82,7 +82,7 @@ describe("The #flag function", function()
 	end)
 
 	it("shouldn't set `value` if there isn't a default value", function()
-		local flag = args.flag {
+		local flag = args.flag "name" {
 			type = args.number
 		}
 
@@ -90,18 +90,16 @@ describe("The #flag function", function()
 	end)
 
 	it("shouldn't build a flag when default value doesn't have the right type", function()
-		local flag = args.flag {
+		local flag = args.flag "name" {
 			type = args.number,
 			default = "dezessete"
 		}
 
 		assert.is_nil(flag)
 	end)
-end)
 
-describe("The #flag_named function", function()
 	it("should set the name of the flag", function()
-		local flag = args.flag_named "p,por-dia" {
+		local flag = args.flag "p,por-dia" {
 			"Outra flag",
 
 			type = args.number,
@@ -113,8 +111,8 @@ describe("The #flag_named function", function()
 			type = args.number,
 			value = 17,
 			short_name = "p",
-			long_name_with_hyphens = "por-dia",
-			long_name_with_underscores = "por_dia"
+			name_with_hyphens = "por-dia",
+			name_with_underscores = "por_dia"
 		}
 
 		for k in pairs(expected) do
@@ -123,7 +121,7 @@ describe("The #flag_named function", function()
 	end)
 
 	it("should allow prescribing short names only", function()
-		local flag = args.flag_named "p" {
+		local flag = args.flag "p" {
 			"Outra flag",
 
 			type = args.number,
@@ -135,8 +133,8 @@ describe("The #flag_named function", function()
 			type = args.number,
 			value = 17,
 			short_name = "p",
-			long_name_with_hyphens = "p",
-			long_name_with_underscores = "p"
+			name_with_hyphens = "p",
+			name_with_underscores = "p"
 		}
 
 		for k in pairs(expected) do
@@ -145,7 +143,7 @@ describe("The #flag_named function", function()
 	end)
 
 	it("should allow prescribing long names only", function()
-		local flag = args.flag_named "por-dia" {
+		local flag = args.flag "por-dia" {
 			"Outra flag",
 
 			type = args.number,

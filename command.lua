@@ -25,7 +25,7 @@ local function command_list()
 end
 
 function load(input_args)
-	local command_name, command
+	local command_name
 
 	for _, arg in ipairs(input_args) do
 		if arg.positional then
@@ -35,13 +35,13 @@ function load(input_args)
 	end
 
 	if not command_name then
-		return command, errors.command_not_provided(command_list())
+		return nil, errors.command_not_provided(command_list())
 	end
 
-	command = _G[command_name]
+	local command = _G[command_name]
 
 	if not is_command(command) then
-		return command, errors.unknown_command(command_name, command_list())
+		return nil, errors.unknown_command(command_name, command_list())
 	end
 
 	return command
@@ -52,12 +52,8 @@ local function command_args(cmd)
 
 	-- Flags will be stored as key,value pairs. Positional arguments will
 	-- be stored as an array, ordered.
-	for name, argument in pairs(cmd) do
+	for _, argument in ipairs(cmd) do
 		if args.is_flag(argument) then
-			if type(name) ~= "number" then
-				argument:name(name)
-			end
-
 			arguments[argument.short_name] = argument
 			arguments[argument.name_with_hyphens] = argument
 
@@ -109,10 +105,6 @@ local function anonymous(data)
 				end
 
 			else
-				if input_arg.name == "help" then
-					return "help" -- TODO tratar deste caso
-				end
-
 				local flag = self.args[input_arg.name]
 
 				if not flag then
@@ -160,8 +152,8 @@ function command(data)
 	}
 
 	-- The commands are lazy-loaded. When it's first accessed, the following
-	-- metatable is used, which builds the anonymous command and changes the metatable to
-	-- it.
+	-- metatable is used, which builds the anonymous command and changes the
+	-- metatable to it.
 	local meta = {
 		__index = function(t, index)
 			local anon = anonymous(data)
@@ -179,7 +171,7 @@ function command(data)
 end
 
 function is_command(t)
-	return type(t) == "table" and t.__type and t.__type == "command"
+	return type(t) == "table" and t.__type == "command"
 end
 
 return _ENV

@@ -7,7 +7,7 @@ describe("The #command function", function()
 			local command = cmd.command {
 				"Documentação in loco",
 
-				first_flag = args.flag {
+				args.flag "first-flag" {
 					"Explicação da primeira flag",
 
 					type = args.boolean
@@ -26,7 +26,7 @@ describe("The #command function", function()
 			local command = cmd.command {
 				"Documentação in loco",
 
-				["s,second-flag"] = args.flag {
+				args.flag "s,second-flag" {
 					"O que faz",
 
 					type = args.number,
@@ -36,22 +36,6 @@ describe("The #command function", function()
 
 			assert.is_not_nil(command.args["second-flag"])
 			assert.is.equal("O que faz", command.args["second-flag"].description)
-		end)
-
-		it("should deal with a named flag", function()
-			local command = cmd.command {
-				"Documentação in loco",
-
-				args.flag_named "third-flag" {
-					"A ordem conta",
-
-					type = args.string,
-					default = "terceira"
-				},
-			}
-
-			assert.is_not_nil(command.args["third-flag"])
-			assert.is.equal("A ordem conta", command.args["third-flag"].description)
 		end)
 
 		it("should deal with a positional argument", function()
@@ -89,19 +73,19 @@ describe("The #command function", function()
 			local command = cmd.command {
 				"Documentação",
 
-				first_flag = args.flag {
+				args.flag "first-flag" {
 					"Primeira",
 
 					type = args.string
 				},
 
-				second_flag = args.flag {
+				args.flag "second-flag" {
 					"Segunda",
 
 					type = args.number
 				},
 
-				args.flag_named "third-flag" {
+				args.flag "third-flag" {
 					"Terceira",
 
 					type = args.boolean
@@ -135,19 +119,19 @@ describe("The #command function", function()
 			local command = cmd.command {
 				"Documentação",
 
-				first_flag = args.flag {
+				args.flag "first-flag" {
 					"Primeira",
 
 					type = args.string
 				},
 
-				second_flag = args.flag {
+				args.flag "second-flag" {
 					"Segunda",
 
 					type = args.number
 				},
 
-				args.flag_named "third-flag" {
+				args.flag "third-flag" {
 					"Terceira",
 
 					type = args.boolean
