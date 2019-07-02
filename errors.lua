@@ -1,3 +1,5 @@
+local tr = require("translations").tr
+
 local table = table
 local setmetatable = setmetatable
 local ipairs = ipairs
@@ -6,20 +8,6 @@ local tostring = tostring
 local exit = os.exit
 
 local _ENV = {}
-
-local translations = {
-	pt_BR = {
-		not_expecting = "O valor “%s” foi passado para a opção “%s”, que não espera receber nenhum valor.",
-
-		not_a_number = "A opção “%s” espera receber um número, mas o valor passado foi “%s”.",
-
-		missing_value = "Nenhum valor informado para a opção “%s”.",
-
-		command_not_provided = "Erro: não foi informado qual comando executar. Os comandos disponíveis são:\n\n%s\n",
-
-		unknown_command = "Erro: o comando “%s” não existe. Os comandos disponíveis são:\n\n%s\n"
-	}
-}
 
 local codes = {
 	missing_value = 100,
@@ -30,12 +18,6 @@ local codes = {
 	unknown_command = 201
 }
 
-local messages = translations.pt_BR
-
-function locale(l)
-	messages = translations[l]
-end
-
 function print(err)
 	stderr:write(tostring(err))
 end
@@ -43,6 +25,17 @@ end
 function exit_with(err)
 	print(err)
 	exit(err.code)
+end
+
+function assert(...)
+	local args = {...}
+	local last = args[#args]
+
+	if last.__type == "error" then
+		exit_with(last)
+	end
+
+	return ...
 end
 
 local function list(available_commands)
@@ -59,11 +52,14 @@ function command_not_provided(available_commands)
 	local meta = {
 		__tostring = function()
 			local cmds = list(available_commands)
-			return messages.command_not_provided:format(cmds)
+			return tr.command_not_provided(cmds)
 		end
 	}
 
-	local err = { code = codes.command_not_provided }
+	local err = {
+		__type = "error",
+		code = codes.command_not_provided
+	}
 
 	return setmetatable(err, meta)
 end
@@ -72,11 +68,14 @@ function unknown_command(name, available_commands)
 	local meta = {
 		__tostring = function()
 			local cmds = list(available_commands)
-			return messages.unknown_command:format(name, cmds)
+			return tr.unknown_command(name, cmds)
 		end
 	}
 
-	local err = { code = codes.unknown_command }
+	local err = {
+		__type = "error",
+		code = codes.unknown_command
+	}
 	return setmetatable(err, meta)
 end
 

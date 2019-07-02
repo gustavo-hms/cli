@@ -25,7 +25,7 @@ local function command_list()
 end
 
 function load(input_args)
-	local command_name = nil
+	local command_name, command
 
 	for _, arg in ipairs(input_args) do
 		if arg.positional then
@@ -35,15 +35,13 @@ function load(input_args)
 	end
 
 	if not command_name then
-		local err = errors.command_not_provided(command_list())
-		errors.exit_with(err)
+		return command, errors.command_not_provided(command_list())
 	end
 
-	local command = _G[command_name]
+	command = _G[command_name]
 
 	if not is_command(command) then
-		local err = errors.unknown_command(command_name, command_list())
-		errors.exit_with(err)
+		return command, errors.unknown_command(command_name, command_list())
 	end
 
 	return command
@@ -78,7 +76,7 @@ function has_subcommands()
     return commands_defined
 end
 
-function anonymous(data)
+local function anonymous(data)
 	local cmd = {
 		__type = "command",
 		args = command_args(data)
@@ -112,7 +110,7 @@ function anonymous(data)
 
 			else
 				if input_arg.name == "help" then
-					return "help"
+					return "help" -- TODO tratar deste caso
 				end
 
 				local flag = self.args[input_arg.name]
