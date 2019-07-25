@@ -129,6 +129,35 @@ insulate("The #parse_input function", function()
 		assert.are.same(4, quatro.value)
 		assert.are.same("cinco", cinco.value)
 	end)
+
+	it("should detect a positional argument following a boolean flag", function()
+		args.arg = { "--um", "=", "1", "--dois=doze", "--tres", "-q", "quinto" }
+
+		local um = args.flag "um" { type = args.number }
+		local dois = args.flag "d,dois" { type = args.string }
+		local tres = args.flag "tres" { type = args.boolean }
+		local quatro = args.flag "q,quatro" { type = args.boolean }
+		local cinco = args.positional "cinco" { type = args.string }
+		local cmd_args = {
+			cinco,
+
+			um = um,
+			d = dois,
+			dois = dois,
+			tres = tres,
+			q = quatro,
+			quatro = quatro
+		}
+
+		local help = args.parse_input(cmd_args)
+
+		assert.is_nil(help)
+		assert.are.same(1, um.value)
+		assert.are.same("doze", dois.value)
+		assert.are.same(true, tres.value)
+		assert.are.same(true, quatro.value)
+		assert.are.same("quinto", cinco.value)
+	end)
 end)
 
 insulate("The #input function", function()
