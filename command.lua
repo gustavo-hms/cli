@@ -74,7 +74,7 @@ end
 
 local function anonymous(data)
 	local cmd = {
-		__type = "command",
+		__command = true,
 		args = command_args(data)
 	}
 
@@ -148,10 +148,10 @@ function command(data)
 	commands_defined = true
 
 	local cmd = {
-		__type = "command"
+		__command = true
 	}
 
-	-- The commands are lazy-loaded. When it's first accessed, the following
+	-- Commands are lazy-loaded. When they are first accessed, the following
 	-- metatable is used, which builds the anonymous command and changes the
 	-- metatable to it.
 	local meta = {
@@ -171,7 +171,7 @@ function command(data)
 end
 
 function is_command(t)
-	return type(t) == "table" and t.__type == "command"
+	return type(t) == "table" and t.__command
 end
 
 return _ENV

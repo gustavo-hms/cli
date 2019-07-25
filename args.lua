@@ -214,7 +214,7 @@ end
 
 local function anonymous_flag(data)
 	local flg = {
-		__type = "flag",
+		__flag = true,
 
 		type = data.type
 	}
@@ -275,13 +275,13 @@ function flag(name)
 end
 
 function is_flag(t)
-	return type(t) == "table" and t.__type == "flag"
+	return type(t) == "table" and t.__flag
 end
 
 function positional(name)
 	return function(data)
 		local pos = {
-			__type = "positional",
+			__positional = true,
 
 			name_with_hyphens = underscores_to_hyphens(name),
 			name_with_underscores = hyphens_to_underscores(name),
@@ -305,7 +305,7 @@ function positional(name)
 end
 
 function is_positional(t)
-	return type(t) == "table" and t.__type == "positional"
+	return type(t) == "table" and t.__positional
 end
 
 return _ENV
