@@ -48,17 +48,17 @@ function load(input_args)
 end
 
 local function command_args(cmd)
-	local arguments = {}
+	local arguments = { positionals = {}, flags = {} }
 
 	-- Flags will be stored as key,value pairs. Positional arguments will
 	-- be stored as an array, ordered.
 	for _, argument in ipairs(cmd) do
 		if args.is_flag(argument) then
-			arguments[argument.short_name] = argument
-			arguments[argument.name_with_hyphens] = argument
+			arguments.flags[argument.short_name] = argument
+			arguments.flags[argument.name_with_hyphens] = argument
 
 		elseif args.is_positional(argument) then
-			arguments[#arguments + 1] = argument
+			arguments.positionals[#arguments.positionals + 1] = argument
 		end
 	end
 
@@ -86,59 +86,8 @@ local function anonymous(data)
 		cmd.fn = data[#data]
 	end
 
-	function cmd:set_arguments(input_args)
-		local unknown_args = {}
-		local current_positional = 1
-
-		for _, input_arg in ipairs(input_args) do
-			if input_arg.positional then
-				local pos = self.args[current_positional]
-
-				if not pos then
-					unknown_args[#unknown_args + 1] = input_arg
-				else
-					local err = pos:add(input_arg.positional) -- TODO
-
-					if not pos.many then
-						current_positional = current_positional + 1
-					end
-				end
-
-			else
-				local flag = self.args[input_arg.name]
-
-				if not flag then
-					unknown_args[#unknown_args + 1] = input_arg
-				else
-					local err = flag:set(input_arg.value) -- TODO
-				end
-			end
-		end
-
-		local unset_args = {}
-
-		for _, arg in pairs(self.args) do
-			if not arg.value then
-				unset_args[#unset_args + 1] = arg
-			end
-		end
-
-		if #unset_args == 0 then
-			unset_args = nil
-
-			-- Build a table with all the values. This is the table the user of
-			-- the module will receive after the arguments' parsing
-			self.values = {}
-			for _, arg in pairs(self.args) do
-				self.values[arg.name_with_underscores] = arg.value
-			end
-		end
-
-		if #unknown_args == 0 then
-			unknown_args = nil
-		end
-
-		return unknown_args, unset_args
+	function cmd:set_arguments()
+		args.parse_input(self.args)
 	end
 
 	return cmd

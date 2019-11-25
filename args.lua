@@ -2,6 +2,8 @@ local M = {}
 setmetatable(M, {__index = _G})
 local _ENV = M
 
+local errors = require "errors"
+
 boolean = "boolean"
 number = "number"
 string = "string"
@@ -48,160 +50,149 @@ local function slice(t, first, last)
 	return setmetatable({ slice = slice }, meta)
 end
 
--- Parses the command line arguments
-function parse_input(cmd_args)
-	local arg = slice(arg, 1, #arg)
-	local positionals = slice(cmd_args, 1, #cmd_args)
+local function input_arguments()
+	local args = {
+		elements = slice(arg, 1, #arg)
+	}
 
-	local new_flag, flag_value, new_positional, positional_values
-
-	local new_arg = function()
-		local item = arg[1]
-
-		if not item then return end
-
-		if starts_with_hyphen(item) then
-			return new_flag()
-		end
-
-		return new_positional()
+	function args:next()
+		local elem = self.elements[1]
+		self.elements = self.elements:slice(2, #self.elements)
+		return elem
 	end
 
-	new_flag = function()
-		local item = arg[1]
-		arg = arg:slice(2)
-
-		local left, right = split_at_equal_sign(item)
-
-		if left == "help" then
-			return "help"
-		end
-
-		local flag = cmd_args[left]
-
-		if not flag then
-			-- TODO
-			return new_arg()
-		end
-
-		if flag.type == boolean or right then
-			flag:set(right) -- TODO
-			return new_arg()
-		end
-
-		return flag_value(flag)
-	end
-
-	flag_value = function(flag)
-		local item = arg[1]
-
-		if item == "=" then
-			arg = arg:slice(2)
-			item = arg[1]
-		end
-
-		if item and not starts_with_hyphen(item) then
-			flag:set(item) -- TODO
-			arg = arg:slice(2)
-		else
-			-- TODO
-		end
-
-		return new_arg()
-	end
-
-	new_positional = function()
-		local positional = positionals[1]
-
-		if not positional then
-			-- TODO
-			arg = arg:slice(2)
-			return new_arg()
-		end
-
-		positional:add(arg[1])
-		arg = arg:slice(2)
-
-		if positional.many then
-			return positional_values()
-		end
-
-		positionals = positionals:slice(2)
-		return new_arg()
-	end
-
-	positional_values = function()
-		local item = arg[1]
-
-		if not item then return end
-
-		if starts_with_hyphen(item) then
-			positionals = positionals:slice(2)
-			return new_flag()
-		end
-
-		local positional = positionals[1]
-		positional:add(item)
-		arg = arg:slice(2)
-
-		return positional_values()
-	end
-
-	return new_arg()
+	return args
 end
 
-function input()
-	local flag_value, new_arg
-	local help = false
+-- Parses the command line arguments
+function parse_input(cmd_args)
+	local flag_mode, flag_name_mode, flag_value_mode, unexpected_flag_mode, set_flag_mode
+	local positional_mode, positional_value_mode, unexpected_positional_mode
+	local missing_value_mode, wrong_value_mode
 
-	local new_flag = function(arg_index, args)
-		local item = arg[arg_index]
-		local left, right = split_at_equal_sign(item)
+	local input = input_arguments()
+	local positionals = slice(cmd_args.positionals, 1, #cmd_args.positionals)
+	local errors_holder = errors.holder()
 
-		if left == "help" then
-			help = true
-		else
-			args[#args + 1] = { name = left, value = right }
+	local new_arg_mode = function()
+		local item = input:next()
+
+		if not item then return end
+
+		if starts_with_hyphen(item) then
+			return flag_mode(item)
 		end
 
-		if right then
-			return new_arg(arg_index + 1, args)
-		end
-
-		return flag_value(arg_index + 1, args)
+		return positional_mode(item)
 	end
 
-	flag_value = function(arg_index, args)
-		local item = arg[arg_index]
+	flag_mode = function(item)
+		local left, right = split_at_equal_sign(item)
+		return flag_name_mode(left, right)
+	end
+
+	flag_name_mode = function(name, value)
+		if name == "help" then return "help" end
+
+		local flag = cmd_args.flags[name]
+
+		if not flag then return unexpected_flag_mode(name) end
+
+		return flag_value_mode(flag, value)
+	end
+
+	flag_value_mode = function(flag, value)
+		if value or flag.type == boolean then
+			return set_flag_mode(flag, value)
+		end
+
+		local item = input:next()
 
 		if item == "=" then
-			arg_index = arg_index + 1
-			item = arg[arg_index]
+			item = input:next()
 		end
 
 		if item and not starts_with_hyphen(item) then
-			args[#args].value = item
-			arg_index = arg_index + 1
+			return set_flag_mode(flag, item)
 		end
 
-		return new_arg(arg_index, args)
+		return missing_value_mode(flag)
 	end
 
-	new_arg = function(arg_index, args)
-		local item = arg[arg_index]
+	set_flag_mode = function(flag, value)
+		local error = flag:set(value)
 
-		if not item then return args end
+		if error then return wrong_value_mode(error) end
 
-		if starts_with_hyphen(item) then
-			return new_flag(arg_index, args)
+		return new_arg_mode()
+	end
+
+	unexpected_flag_mode = function(name)
+		errors_holder:add(errors.unknown_arg(name))
+		return new_arg_mode()
+	end
+
+	positional_mode = function(value)
+		local positional = positionals[1]
+
+		if not positional then return unexpected_positional_mode(value) end
+
+		return positional_value_mode(positional, value)
+	end
+
+	positional_value_mode = function(positional, value)
+		if not value then return end
+
+		if positional.many and starts_with_hyphen(value) then
+			positionals = positionals:slice(2, #positionals)
+			return flag_mode(value)
 		end
 
-		args[#args + 1] = { positional = item }
+		local error = positional:add(value)
 
-		return new_arg(arg_index + 1, args)
+		if error then return wrong_value_mode(error) end
+
+		if positional.many then
+			value = input:next()
+			return positional_value_mode(positional, value)
+		end
+
+		positionals = positionals:slice(2, #positionals)
+		return new_arg_mode()
 	end
 
-	return new_arg(1, {}), help
+	missing_value_mode = function(arg)
+		errors_holder:add(errors.missing_value(arg.name_with_hyphens))
+		return new_arg_mode()
+	end
+
+	wrong_value_mode = function(error)
+		errors_holder:add(error)
+		return new_arg_mode()
+	end
+
+	unexpected_positional_mode = function(value)
+		errors_holder:add(errors.unexpected_positional(value))
+		return new_arg_mode()
+	end
+
+	local help = new_arg_mode()
+	return help, errors_holder:errors()
+end
+
+function find_subcommand_name(cmd_args)
+	local fake_cmd = {
+		args = {
+			positionals = { positional "subcommand" { type = string } },
+			flags = cmd_args.args.flags
+		}
+	}
+
+	local help = parse_input(fake_cmd, true)
+
+	if help then --[[ TODO ]] end
+
+	return fake_cmd.args.positionals[1].value
 end
 
 local function hyphens_to_underscores(name)
@@ -234,21 +225,21 @@ local function anonymous_flag(data)
 	function flg:set(value)
 		if self.type == boolean then
 			if value then
-				return errors.not_expecting(value) -- TODO
+				return errors.not_expecting(self.name_with_hyphens, value)
 			end
 
 			self.value = true
 
 		else
 			if not value then
-				return errors.missing_value() -- TODO
+				return errors.missing_value(self.name_with_hyphens)
 			end
 
 			if self.type == number then
 				self.value = tonumber(value)
 
 				if not self.value then
-					return errors.not_a_number(value) -- TODO
+					return errors.not_a_number(self.name_with_hyphens, value)
 				end
 
 			else

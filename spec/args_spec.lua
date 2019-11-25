@@ -10,18 +10,23 @@ insulate("The #parse_input function", function()
 		local quatro = args.flag "q,quatro" { type = args.number }
 		local cinco = args.flag "c" { type = args.string }
 		local cmd_args = {
-			um = um,
-			d = dois,
-			dois = dois,
-			tres = tres,
-			q = quatro,
-			quatro = quatro,
-			c = cinco
+			positionals = {},
+
+			flags = {
+				um = um,
+				d = dois,
+				dois = dois,
+				tres = tres,
+				q = quatro,
+				quatro = quatro,
+				c = cinco
+			}
 		}
 
-		local help = args.parse_input(cmd_args)
+		local help, err = args.parse_input(cmd_args)
 
 		assert.is_nil(help)
+		assert.is_nil(err)
 		assert.are.same(1, um.value)
 		assert.are.same("doze", dois.value)
 		assert.are.same(true, tres.value)
@@ -37,12 +42,16 @@ insulate("The #parse_input function", function()
 		local quatro = args.flag "q,quatro" { type = args.number }
 		local cinco = args.flag "c" { type = args.string }
 		local cmd_args = {
-			um = um,
-			d = dois,
-			dois = dois,
-			q = quatro,
-			quatro = quatro,
-			c = cinco
+			positionals = {},
+
+			flags = {
+				um = um,
+				d = dois,
+				dois = dois,
+				q = quatro,
+				quatro = quatro,
+				c = cinco
+			}
 		}
 
 		local help = args.parse_input(cmd_args)
@@ -59,17 +68,20 @@ insulate("The #parse_input function", function()
 		local input = args.positional "input" { type = args.string }
 		local output = args.positional "output" { type = args.string }
 		local cmd_args = {
-			input, output,
+			positionals = { input, output },
 
-			um = um,
-			d = dois,
-			dois = dois,
-			tres = tres,
+			flags = {
+				um = um,
+				d = dois,
+				dois = dois,
+				tres = tres,
+			}
 		}
 
-		local help = args.parse_input(cmd_args)
+		local help, err = args.parse_input(cmd_args)
 
 		assert.is_nil(help)
+		assert.is_nil(err)
 		assert.are.same(1, um.value)
 		assert.are.same("doze", dois.value)
 		assert.are.same(true, tres.value)
@@ -85,17 +97,21 @@ insulate("The #parse_input function", function()
 		local tres = args.flag "tres" { type = args.boolean }
 		local files = args.positional "files" { type = args.string, many = true }
 		local cmd_args = {
-			files,
+			positionals = { files },
 
-			um = um,
-			d = dois,
-			dois = dois,
-			tres = tres,
+			flags = {
+				um = um,
+				d = dois,
+				dois = dois,
+				tres = tres
+			}
 		}
 
-		local help = args.parse_input(cmd_args)
+
+		local help, err = args.parse_input(cmd_args)
 
 		assert.is_nil(help)
+		assert.is_nil(err)
 		assert.are.same(1, um.value)
 		assert.are.same("doze", dois.value)
 		assert.are.same(true, tres.value)
@@ -111,18 +127,24 @@ insulate("The #parse_input function", function()
 		local quatro = args.flag "q,quatro" { type = args.number }
 		local cinco = args.flag "c" { type = args.string }
 		local cmd_args = {
-			um = um,
-			d = dois,
-			dois = dois,
-			tres = tres,
-			q = quatro,
-			quatro = quatro,
-			c = cinco
+			positionals = {},
+
+			flags = {
+				um = um,
+				d = dois,
+				dois = dois,
+				tres = tres,
+				q = quatro,
+				quatro = quatro,
+				c = cinco
+			}
 		}
 
-		local help = args.parse_input(cmd_args)
+
+		local help, err = args.parse_input(cmd_args)
 
 		assert.is_nil(help)
+		assert.is_nil(err)
 		assert.are.same("", um.value)
 		assert.are.same("", dois.value)
 		assert.are.same(true, tres.value)
@@ -139,19 +161,23 @@ insulate("The #parse_input function", function()
 		local quatro = args.flag "q,quatro" { type = args.boolean }
 		local cinco = args.positional "cinco" { type = args.string }
 		local cmd_args = {
-			cinco,
+			positionals = { cinco },
 
-			um = um,
-			d = dois,
-			dois = dois,
-			tres = tres,
-			q = quatro,
-			quatro = quatro
+			flags = {
+				um = um,
+				d = dois,
+				dois = dois,
+				tres = tres,
+				q = quatro,
+				quatro = quatro
+			}
 		}
 
-		local help = args.parse_input(cmd_args)
+
+		local help, err = args.parse_input(cmd_args)
 
 		assert.is_nil(help)
+		assert.is_nil(err)
 		assert.are.same(1, um.value)
 		assert.are.same("doze", dois.value)
 		assert.are.same(true, tres.value)
