@@ -32,35 +32,42 @@ end
 
 -- Both `flag` and `positional` have this common structure:
 -- {
---    type = …,
---    value = …,
 --    name_with_hyphens = …,
---    name_with_underscores = …
+--    name_with_underscores = …,
+--    description = …,
+--    type = …,
+--    value = …
 -- }
 function flag(name)
 	return function(data)
-		local flg = {
-			__flag = true,
-
-			type = data.type or string
-		}
-
 		-- All flags without a default value are mandatory except for boolean flags,
 		-- which are false by default
+		local value
+
 		if data.type == boolean then
-			flg.value = false
+			value = false
 
 		elseif data.default then
 			if data.type == number and type(data.default) ~= "number" then
 				error(format("The type of the flag “%s” is set to be a number, but its default value is not a number", name))
 			end
 
-			flg.value = data.default
+			value = data.default
 		end
 
-		if type(data[1]) == "string" then
-			flg.description = data[1]
-		end
+		local short, long = split_at_comma(name)
+		long = long or short
+
+		local flg = {
+			__flag = true,
+
+			short_name = short,
+			name_with_hyphens = underscores_to_hyphens(long),
+			name_with_underscores = hyphens_to_underscores(long),
+			description = type(data[1]) ~= "string" and "" or data[1],
+			type = data.type or string,
+			value = value
+		}
 
 		function flg:set(value)
 			if self.type == boolean then
@@ -87,14 +94,6 @@ function flag(name)
 				end
 			end
 		end
-
-
-		local short, long = split_at_comma(name)
-		long = long or short
-
-		flg.short_name = short
-		flg.name_with_hyphens = underscores_to_hyphens(long)
-		flg.name_with_underscores = hyphens_to_underscores(long)
 
 		return flg
 	end
@@ -128,7 +127,7 @@ function positional(name)
 
 			name_with_hyphens = underscores_to_hyphens(name),
 			name_with_underscores = hyphens_to_underscores(name),
-			description = data[1],
+			description = type(data[1]) ~= "string" and "" or data[1],
 			type = data.type or string,
 			many = data.many,
 			value = data.default
