@@ -50,8 +50,8 @@ function flag(name)
 		if data.type == boolean then
 			flg.value = false
 
-		elseif data.default and data.type == number then
-			if type(data.default) ~= "number" then
+		elseif data.default then
+			if data.type == number and type(data.default) ~= "number" then
 				error(format("The type of the flag “%s” is set to be a number, but its default value is not a number", name))
 			end
 
