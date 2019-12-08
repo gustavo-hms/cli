@@ -42,7 +42,7 @@ function flag(name)
 		local flg = {
 			__flag = true,
 
-			type = data.type
+			type = data.type or string
 		}
 
 		-- All flags without a default value are mandatory except for boolean flags,
@@ -129,7 +129,7 @@ function positional(name)
 			name_with_hyphens = underscores_to_hyphens(name),
 			name_with_underscores = hyphens_to_underscores(name),
 			description = data[1],
-			type = data.type,
+			type = data.type or string,
 			many = data.many,
 			value = data.default
 		}
