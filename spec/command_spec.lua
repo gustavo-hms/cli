@@ -71,24 +71,22 @@ insulate("The #parse_args function", function()
 	end)
 
 	it("should parses successfully a misbehaved input", function()
-		_G.arg = { "--um", "=", "", "--dois=", "--tres", "-q=", "4", "-c=cinco" }
+		_G.arg = { "--um", "=", "", "--tres", "-q=", "4", "-c=cinco" }
 		package.loaded.command = nil
 
 		local command = require "command"
 
 		local um = option.flag "um" { type = option.string }
-		local dois = option.flag "d,dois" { type = option.string }
 		local tres = option.flag "tres" { type = option.boolean }
 		local quatro = option.flag "q,quatro" { type = option.number }
 		local cinco = option.flag "c" { type = option.string }
-		local cmd = command.command { um, dois, tres, quatro, cinco }
+		local cmd = command.command { um, tres, quatro, cinco }
 
 		local help, err = cmd.options:parse_args()
 
 		assert.is_nil(help)
 		assert.is_nil(err)
 		assert.are.same("", um.value)
-		assert.are.same("", dois.value)
 		assert.are.same(true, tres.value)
 		assert.are.same(4, quatro.value)
 		assert.are.same("cinco", cinco.value)
