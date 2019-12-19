@@ -24,15 +24,27 @@ local function command_list()
 	return cmds
 end
 
-function load(input_args)
-	local command_name
+function load(global_cmd)
+	-- We are going to define a fake arguments table with a sole positional argument to
+	-- be able to use `args.parse_input` to load the command name from the
+	-- input command line arguments. By the way `args.parse_input` is designed,
+	-- the command name will be stored in the fake command's positional
+	-- argument.
+	
+	local global_args = (global_cmd and global_cmd.args) and global_cmd.args or {}
 
-	for _, arg in ipairs(input_args) do
-		if arg.positional then
-			command_name = arg.positional
-			break
-		end
-	end
+	local fake_args = {
+		flags = global_args.flags or {},
+		positionals = { 
+			args.positional "command-name" { type = args.string }
+		}
+	}
+	
+	local help = args.parse_input(fake_args)
+
+	if help then return nil, help end
+
+	local command_name = fake_args.positionals.command_name
 
 	if not command_name then
 		return nil, errors.command_not_provided(command_list())
@@ -121,6 +133,21 @@ end
 
 function is_command(t)
 	return type(t) == "table" and t.__command
+end
+
+function merge_arguments(cmd1, cmd2)
+	local args1 = cmd1.args
+	local args2 = cmd2.args
+
+	for _, v in ipairs(args2.positionals) do
+		args1.positionals[#args1.positionals + 1] = v
+	end
+
+	for k, v in pairs(args2.flags) do
+		args1.flags[k] = v
+	end
+
+	return args1
 end
 
 return _ENV

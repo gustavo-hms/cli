@@ -51,9 +51,7 @@ local function slice(t, first, last)
 end
 
 local function input_arguments()
-	local args = {
-		elements = slice(arg, 1, #arg)
-	}
+	local args = { elements = slice(arg, 1, #arg) }
 
 	function args:next()
 		local elem = self.elements[1]
@@ -65,6 +63,12 @@ local function input_arguments()
 end
 
 -- Parses the command line arguments
+--
+-- `cmd_args` has the following form:
+-- {
+--    positionals = { positional1, positional2, ... },
+--    flags = { flag1 = a_flag, flag2 = another_flag, ... }	
+-- }
 function parse_input(cmd_args)
 	local flag_mode, flag_name_mode, flag_value_mode, unexpected_flag_mode, set_flag_mode
 	local positional_mode, positional_value_mode, unexpected_positional_mode
@@ -297,6 +301,20 @@ end
 
 function is_positional(t)
 	return type(t) == "table" and t.__positional
+end
+
+function extract_values(args)
+	local values = {}
+
+	for _, arg in ipairs(args.positionals) do
+		values[arg.name_with_underscores] = arg.value
+	end
+
+	for _, arg in pairs(args.flags) do
+		values[arg.name_with_underscores] = arg.value
+	end
+
+	return values
 end
 
 return _ENV
