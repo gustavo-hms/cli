@@ -1,15 +1,15 @@
-local args = require "args"
+local option = require "option"
 local cmd = require "command"
 local errors = require "errors"
 
 local _ENV = {}
 
 -- Re-exports
-flag = args.flag
-positional = args.positional
-boolean = args.boolean
-number = args.number
-string = args.string
+flag = option.flag
+positional = option.positional
+boolean = option.boolean
+number = option.number
+string = option.string
 command = cmd.command
 
 local function program_with_options(program_cmd)
@@ -21,7 +21,7 @@ local function program_with_options(program_cmd)
 end
 
 local function program_with_commands(global_cmd)
-	local input_args = args.input()
+	local input_args = option.input()
 	local subcommand = errors.assert(cmd.load(input_args))
 	local unknown, unset = subcommand:set_arguments(input_args) -- TODO
 
@@ -41,8 +41,8 @@ local function program_with_options_and_commands(global_cmd)
 	
 	if help then --[[ TODO ]] end
     	
-	local all_args = cmd.merge_arguments(global_cmd, subcommand)
-	help = errors.assert(args.parse_input(all_args))
+	local all_args = cmd.merge_options(global_cmd, subcommand)
+	help = errors.assert(option.parse_input(all_args))
 	
 	if help then end -- TODO
 end
