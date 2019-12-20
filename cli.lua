@@ -37,21 +37,31 @@ local function program_with_commands(global_cmd)
 end
 
 local function program_with_options_and_commands(global_cmd)
-	local subcommand, help = errors.assert(cmd.load(global_cmd.args))
-	
+	local subcommand, help = errors.assert(cmd.load(global_cmd.options))
+
 	if help then --[[ TODO ]] end
-    	
-	local all_args = cmd.merge_options(global_cmd, subcommand)
-	help = errors.assert(option.parse_input(all_args))
-	
+
+	local options = cmd.merge_options(global_cmd, subcommand)
+	help = errors.assert(options:parse_args())
+
 	if help then end -- TODO
+
+	local values = errors.assert(options:extract_values())
+
+	if subcommand.fn then
+		if global_cmd.fn then
+			subcommand.fn(values, global_cmd.fn(values))
+		else
+			subcommand.fn(values)
+		end
+	end
 end
 
 function program(data)
 	local global_cmd = cmd.anonymous(data)
 
 	if cmd.has_subcommands() then
-		if global_cmd.flags then
+		if global_cmd.options then
 			return program_with_options_and_commands(global_cmd)
 		end
 

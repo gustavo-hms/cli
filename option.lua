@@ -1,8 +1,9 @@
-local M = {}
-setmetatable(M, {__index = _G})
-local _ENV = M
-
 local errors = require "errors"
+
+local tonumber = tonumber
+local type = type
+
+local _ENV = {}
 
 boolean = "boolean"
 number = "number"
@@ -28,10 +29,10 @@ end
 
 -- Both `flag` and `positional` have this common structure:
 -- {
---    type,
---    value,
---    name_with_hyphens,
---    name_with_underscores
+--    type = …,
+--    value = …,
+--    name_with_hyphens = …,
+--    name_with_underscores = …
 -- }
 function flag(name)
 	return function(data)

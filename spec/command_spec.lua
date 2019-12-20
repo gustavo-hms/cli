@@ -1,5 +1,5 @@
 cmd = require "command"
-args = require "args"
+option = require "option"
 
 describe("The #command function", function()
 	describe("when setting an argument", function()
@@ -7,10 +7,10 @@ describe("The #command function", function()
 			local command = cmd.command {
 				"Documentação in loco",
 
-				args.flag "first-flag" {
+				option.flag "first-flag" {
 					"Explicação da primeira flag",
 
-					type = args.boolean
+					type = option.boolean
 				}
 			}
 
@@ -26,10 +26,10 @@ describe("The #command function", function()
 			local command = cmd.command {
 				"Documentação in loco",
 
-				args.flag "s,second-flag" {
+				option.flag "s,second-flag" {
 					"O que faz",
 
-					type = args.number,
+					type = option.number,
 					default = 7
 				}
 			}
@@ -42,10 +42,10 @@ describe("The #command function", function()
 			local command = cmd.command {
 				"Documentação in loco",
 
-				args.positional "file" {
+				option.positional "file" {
 					"The file to be edited",
 
-					type = args.string
+					type = option.string
 				},
 			}
 
@@ -73,28 +73,28 @@ describe("The #command function", function()
 			local command = cmd.command {
 				"Documentação",
 
-				args.flag "first-flag" {
+				option.flag "first-flag" {
 					"Primeira",
 
-					type = args.string
+					type = option.string
 				},
 
-				args.flag "second-flag" {
+				option.flag "second-flag" {
 					"Segunda",
 
-					type = args.number
+					type = option.number
 				},
 
-				args.flag "third-flag" {
+				option.flag "third-flag" {
 					"Terceira",
 
-					type = args.boolean
+					type = option.boolean
 				},
 
-				args.positional "file" {
+				option.positional "file" {
 					"Arquivo",
 
-					type = args.string
+					type = option.string
 				}
 			}
 
@@ -119,28 +119,28 @@ describe("The #command function", function()
 			local command = cmd.command {
 				"Documentação",
 
-				args.flag "first-flag" {
+				option.flag "first-flag" {
 					"Primeira",
 
-					type = args.string
+					type = option.string
 				},
 
-				args.flag "second-flag" {
+				option.flag "second-flag" {
 					"Segunda",
 
-					type = args.number
+					type = option.number
 				},
 
-				args.flag "third-flag" {
+				option.flag "third-flag" {
 					"Terceira",
 
-					type = args.boolean
+					type = option.boolean
 				},
 
-				args.positional "file" {
+				option.positional "file" {
 					"Arquivo",
 
-					type = args.string
+					type = option.string
 				}
 			}
 

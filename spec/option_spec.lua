@@ -1,14 +1,14 @@
-local args = require "args"
+local option = require "option"
 
 insulate("The #parse_input function", function()
 	it("should set all the flags", function()
-		args.arg = { "--um", "=", "1", "--dois=doze", "--tres", "-q=4", "-c=cinco" }
+		option.arg = { "--um", "=", "1", "--dois=doze", "--tres", "-q=4", "-c=cinco" }
 
-		local um = args.flag "um" { type = args.number }
-		local dois = args.flag "d,dois" { type = args.string }
-		local tres = args.flag "tres" { type = args.boolean }
-		local quatro = args.flag "q,quatro" { type = args.number }
-		local cinco = args.flag "c" { type = args.string }
+		local um = option.flag "um" { type = option.number }
+		local dois = option.flag "d,dois" { type = option.string }
+		local tres = option.flag "tres" { type = option.boolean }
+		local quatro = option.flag "q,quatro" { type = option.number }
+		local cinco = option.flag "c" { type = option.string }
 		local cmd_args = {
 			positionals = {},
 
@@ -23,7 +23,7 @@ insulate("The #parse_input function", function()
 			}
 		}
 
-		local help, err = args.parse_input(cmd_args)
+		local help, err = option.parse_input(cmd_args)
 
 		assert.is_nil(help)
 		assert.is_nil(err)
@@ -35,12 +35,12 @@ insulate("The #parse_input function", function()
 	end)
 
 	it("should detect a `help` flag", function()
-		args.arg = { "--um", "=", "1", "--dois=doze", "--help", "-q=4", "-c=cinco" }
+		option.arg = { "--um", "=", "1", "--dois=doze", "--help", "-q=4", "-c=cinco" }
 
-		local um = args.flag "um" { type = args.number }
-		local dois = args.flag "d,dois" { type = args.string }
-		local quatro = args.flag "q,quatro" { type = args.number }
-		local cinco = args.flag "c" { type = args.string }
+		local um = option.flag "um" { type = option.number }
+		local dois = option.flag "d,dois" { type = option.string }
+		local quatro = option.flag "q,quatro" { type = option.number }
+		local cinco = option.flag "c" { type = option.string }
 		local cmd_args = {
 			positionals = {},
 
@@ -54,19 +54,19 @@ insulate("The #parse_input function", function()
 			}
 		}
 
-		local help = args.parse_input(cmd_args)
+		local help = option.parse_input(cmd_args)
 
 		assert.are.same("help", help)
 	end)
 
 	it("should set the flags and the positional arguments", function()
-		args.arg = { "--um", "=", "1", "--dois=doze", "entrada", "saida", "--tres" }
+		option.arg = { "--um", "=", "1", "--dois=doze", "entrada", "saida", "--tres" }
 
-		local um = args.flag "um" { type = args.number }
-		local dois = args.flag "d,dois" { type = args.string }
-		local tres = args.flag "tres" { type = args.boolean }
-		local input = args.positional "input" { type = args.string }
-		local output = args.positional "output" { type = args.string }
+		local um = option.flag "um" { type = option.number }
+		local dois = option.flag "d,dois" { type = option.string }
+		local tres = option.flag "tres" { type = option.boolean }
+		local input = option.positional "input" { type = option.string }
+		local output = option.positional "output" { type = option.string }
 		local cmd_args = {
 			positionals = { input, output },
 
@@ -78,7 +78,7 @@ insulate("The #parse_input function", function()
 			}
 		}
 
-		local help, err = args.parse_input(cmd_args)
+		local help, err = option.parse_input(cmd_args)
 
 		assert.is_nil(help)
 		assert.is_nil(err)
@@ -90,12 +90,12 @@ insulate("The #parse_input function", function()
 	end)
 
 	it("should set #many values for a positional argument", function()
-		args.arg = { "--um", "=", "1", "--dois=doze", "doc1", "doc2", "doc3", "--tres" }
+		option.arg = { "--um", "=", "1", "--dois=doze", "doc1", "doc2", "doc3", "--tres" }
 
-		local um = args.flag "um" { type = args.number }
-		local dois = args.flag "d,dois" { type = args.string }
-		local tres = args.flag "tres" { type = args.boolean }
-		local files = args.positional "files" { type = args.string, many = true }
+		local um = option.flag "um" { type = option.number }
+		local dois = option.flag "d,dois" { type = option.string }
+		local tres = option.flag "tres" { type = option.boolean }
+		local files = option.positional "files" { type = option.string, many = true }
 		local cmd_args = {
 			positionals = { files },
 
@@ -108,7 +108,7 @@ insulate("The #parse_input function", function()
 		}
 
 
-		local help, err = args.parse_input(cmd_args)
+		local help, err = option.parse_input(cmd_args)
 
 		assert.is_nil(help)
 		assert.is_nil(err)
@@ -119,13 +119,13 @@ insulate("The #parse_input function", function()
 	end)
 
 	it("should parses successfully a misbehaved input", function()
-		args.arg = { "--um", "=", "", "--dois=", "--tres", "-q=", "4", "-c=cinco" }
+		option.arg = { "--um", "=", "", "--dois=", "--tres", "-q=", "4", "-c=cinco" }
 
-		local um = args.flag "um" { type = args.string }
-		local dois = args.flag "d,dois" { type = args.string }
-		local tres = args.flag "tres" { type = args.boolean }
-		local quatro = args.flag "q,quatro" { type = args.number }
-		local cinco = args.flag "c" { type = args.string }
+		local um = option.flag "um" { type = option.string }
+		local dois = option.flag "d,dois" { type = option.string }
+		local tres = option.flag "tres" { type = option.boolean }
+		local quatro = option.flag "q,quatro" { type = option.number }
+		local cinco = option.flag "c" { type = option.string }
 		local cmd_args = {
 			positionals = {},
 
@@ -141,7 +141,7 @@ insulate("The #parse_input function", function()
 		}
 
 
-		local help, err = args.parse_input(cmd_args)
+		local help, err = option.parse_input(cmd_args)
 
 		assert.is_nil(help)
 		assert.is_nil(err)
@@ -153,13 +153,13 @@ insulate("The #parse_input function", function()
 	end)
 
 	it("should detect a positional argument following a boolean flag", function()
-		args.arg = { "--um", "=", "1", "--dois=doze", "--tres", "-q", "quinto" }
+		option.arg = { "--um", "=", "1", "--dois=doze", "--tres", "-q", "quinto" }
 
-		local um = args.flag "um" { type = args.number }
-		local dois = args.flag "d,dois" { type = args.string }
-		local tres = args.flag "tres" { type = args.boolean }
-		local quatro = args.flag "q,quatro" { type = args.boolean }
-		local cinco = args.positional "cinco" { type = args.string }
+		local um = option.flag "um" { type = option.number }
+		local dois = option.flag "d,dois" { type = option.string }
+		local tres = option.flag "tres" { type = option.boolean }
+		local quatro = option.flag "q,quatro" { type = option.boolean }
+		local cinco = option.positional "cinco" { type = option.string }
 		local cmd_args = {
 			positionals = { cinco },
 
@@ -174,7 +174,7 @@ insulate("The #parse_input function", function()
 		}
 
 
-		local help, err = args.parse_input(cmd_args)
+		local help, err = option.parse_input(cmd_args)
 
 		assert.is_nil(help)
 		assert.is_nil(err)
@@ -188,9 +188,9 @@ end)
 
 insulate("The #input function", function()
 	it("should group args in a normal execution", function()
-		args.arg = { "--um", "=", "1", "--dois=doze", "--tres", "-q=4", "cinco" }
+		option.arg = { "--um", "=", "1", "--dois=doze", "--tres", "-q=4", "cinco" }
 
-		local result, help = args.input()
+		local result, help = option.input()
 
 		local expected = {
 			{ name = "um", value = "1" },
@@ -205,9 +205,9 @@ insulate("The #input function", function()
 	end)
 
 	it("should detect a positional argument following a boolean flag", function()
-		args.arg = { "--um", "=", "1", "--dois=doze", "--tres", "-q", "cinco" }
+		option.arg = { "--um", "=", "1", "--dois=doze", "--tres", "-q", "cinco" }
 
-		local result, help = args.input()
+		local result, help = option.input()
 
 		local expected = {
 			{ name = "um", value = "1" },
@@ -222,9 +222,9 @@ insulate("The #input function", function()
 	end)
 
 	it("should parses successfully a misbehaved input", function()
-		args.arg = { "--um", "=", "--dois=", "--tres", "-q=", "4", "cinco" }
+		option.arg = { "--um", "=", "--dois=", "--tres", "-q=", "4", "cinco" }
 
-		local result, help = args.input()
+		local result, help = option.input()
 
 		local expected = {
 			{ name = "um" },
@@ -239,9 +239,9 @@ insulate("The #input function", function()
 	end)
 
 	it("should detect a help flag", function()
-		args.arg = { "--um", "=", "1", "--help", "--dois=doze", "--tres", "-q=4", "cinco" }
+		option.arg = { "--um", "=", "1", "--help", "--dois=doze", "--tres", "-q=4", "cinco" }
 
-		local result, help = args.input()
+		local result, help = option.input()
 
 		local expected = {
 			{ name = "um", value = "1" },
@@ -258,16 +258,16 @@ end)
 
 describe("The #flag function", function()
 	it("should build the prescribed object", function()
-		local flag = args.flag "name" {
+		local flag = option.flag "name" {
 			"Descrição",
 
-			type = args.string,
+			type = option.string,
 			default = "opa!"
 		}
 
 		local expected = {
 			description = "Descrição",
-			type = args.string,
+			type = option.string,
 			value = "opa!"
 		}
 
@@ -277,24 +277,24 @@ describe("The #flag function", function()
 	end)
 
 	it("should set a boolean flag with `false` if there's no default value", function()
-		local flag = args.flag "name" {
-			type = args.boolean
+		local flag = option.flag "name" {
+			type = option.boolean
 		}
 
 		assert.is_false(flag.value)
 	end)
 
 	it("shouldn't set `value` if there isn't a default value", function()
-		local flag = args.flag "name" {
-			type = args.number
+		local flag = option.flag "name" {
+			type = option.number
 		}
 
 		assert.is_nil(flag.value)
 	end)
 
 	it("shouldn't build a flag when default value doesn't have the right type", function()
-		local flag = args.flag "name" {
-			type = args.number,
+		local flag = option.flag "name" {
+			type = option.number,
 			default = "dezessete"
 		}
 
@@ -302,16 +302,16 @@ describe("The #flag function", function()
 	end)
 
 	it("should set the name of the flag", function()
-		local flag = args.flag "p,por-dia" {
+		local flag = option.flag "p,por-dia" {
 			"Outra flag",
 
-			type = args.number,
+			type = option.number,
 			default = 17
 		}
 
 		local expected = {
 			description = "Outra flag",
-			type = args.number,
+			type = option.number,
 			value = 17,
 			short_name = "p",
 			name_with_hyphens = "por-dia",
@@ -324,16 +324,16 @@ describe("The #flag function", function()
 	end)
 
 	it("should allow prescribing short names only", function()
-		local flag = args.flag "p" {
+		local flag = option.flag "p" {
 			"Outra flag",
 
-			type = args.number,
+			type = option.number,
 			default = 17
 		}
 
 		local expected = {
 			description = "Outra flag",
-			type = args.number,
+			type = option.number,
 			value = 17,
 			short_name = "p",
 			name_with_hyphens = "p",
@@ -346,16 +346,16 @@ describe("The #flag function", function()
 	end)
 
 	it("should allow prescribing long names only", function()
-		local flag = args.flag "por-dia" {
+		local flag = option.flag "por-dia" {
 			"Outra flag",
 
-			type = args.number,
+			type = option.number,
 			default = 17
 		}
 
 		local expected = {
 			description = "Outra flag",
-			type = args.number,
+			type = option.number,
 			value = 17,
 			name_with_hyphens = "por-dia",
 			name_with_underscores = "por_dia"
@@ -369,16 +369,16 @@ end)
 
 describe("The #positional function", function()
 	it("should build the prescribed positional argument", function()
-		local positional = args.positional "este-aqui" {
+		local positional = option.positional "este-aqui" {
 			"Cada argumento...",
 
-			type = args.string,
+			type = option.string,
 			default = "nenhum"
 		}
 
 		local expected = {
 			description = "Cada argumento...",
-			type = args.string,
+			type = option.string,
 			value = "nenhum",
 			name_with_hyphens = "este-aqui",
 			name_with_underscores = "este_aqui"
@@ -390,18 +390,18 @@ describe("The #positional function", function()
 	end)
 
 	it("shouldn't set `value` if there isn't a default value", function()
-		local positional = args.positional "este-aqui" {
+		local positional = option.positional "este-aqui" {
 			"Cada argumento...",
 
-			type = args.string,
+			type = option.string,
 		}
 
 		assert.is_nil(positional.value)
 	end)
 
 	it("should take into account the `many` option", function()
-		local positional = args.positional "este-aqui" {
-			type = args.number,
+		local positional = option.positional "este-aqui" {
+			type = option.number,
 			default = 17,
 			many = true
 		}

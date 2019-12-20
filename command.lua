@@ -26,41 +26,6 @@ local function command_list()
 	return cmds
 end
 
-function load(global_cmd)
-	-- We are going to define a fake arguments table with a sole positional argument to
-	-- be able to use `args.parse_input` to load the command name from the
-	-- input command line arguments. By the way `args.parse_input` is designed,
-	-- the command name will be stored in the fake command's positional
-	-- argument.
-
-	local global_args = (global_cmd and global_cmd.args) and global_cmd.args or {}
-
-	local fake_args = {
-		flags = global_args.flags or {},
-		positionals = {
-			option.positional "command-name" { type = option.string }
-		}
-	}
-
-	local help = option.parse_input(fake_args)
-
-	if help then return nil, help end
-
-	local command_name = fake_args.positionals.command_name
-
-	if not command_name then
-		return nil, errors.command_not_provided(command_list())
-	end
-
-	local command = _G[command_name]
-
-	if not is_command(command) then
-		return nil, errors.unknown_command(command_name, command_list())
-	end
-
-	return command
-end
-
 local function starts_with_hyphen(text)
 	return text:sub(1,1) == "-"
 end
@@ -110,6 +75,122 @@ local function split_at_equal_sign(text)
 	return left, right
 end
 
+-- State machine to parse command line arguments
+local function parse_args(options)
+	local flag_mode, flag_name_mode, flag_value_mode, unexpected_flag_mode, set_flag_mode
+	local positional_mode, positional_value_mode, unexpected_positional_mode
+	local missing_value_mode, wrong_value_mode
+
+	local args = arguments()
+	local positionals = slice(options.positionals, 1, #options.positionals)
+	local errors_holder = errors.holder()
+
+	local new_arg_mode = function()
+		local item = args:next()
+
+		if not item then return end
+
+		if starts_with_hyphen(item) then
+			return flag_mode(item)
+		end
+
+		return positional_mode(item)
+	end
+
+	flag_mode = function(item)
+		local left, right = split_at_equal_sign(item)
+		return flag_name_mode(left, right)
+	end
+
+	flag_name_mode = function(name, value)
+		if name == "help" then return "help" end
+
+		local flag = options.flags[name]
+
+		if not flag then return unexpected_flag_mode(name) end
+
+		return flag_value_mode(flag, value)
+	end
+
+	flag_value_mode = function(flag, value)
+		if value or flag.type == option.boolean then
+			return set_flag_mode(flag, value)
+		end
+
+		local item = args:next()
+
+		if item == "=" then
+			item = args:next()
+		end
+
+		if item and not starts_with_hyphen(item) then
+			return set_flag_mode(flag, item)
+		end
+
+		return missing_value_mode(flag)
+	end
+
+	set_flag_mode = function(flag, value)
+		local error = flag:set(value)
+
+		if error then return wrong_value_mode(error) end
+
+		return new_arg_mode()
+	end
+
+	unexpected_flag_mode = function(name)
+		errors_holder:add(errors.unknown_arg(name))
+		return new_arg_mode()
+	end
+
+	positional_mode = function(value)
+		local positional = positionals[1]
+
+		if not positional then return unexpected_positional_mode(value) end
+
+		return positional_value_mode(positional, value)
+	end
+
+	positional_value_mode = function(positional, value)
+		if not value then return end
+
+		if positional.many and starts_with_hyphen(value) then
+			positionals = positionals:slice(2, #positionals)
+			return flag_mode(value)
+		end
+
+		local error = positional:add(value)
+
+		if error then return wrong_value_mode(error) end
+
+		if positional.many then
+			value = args:next()
+			return positional_value_mode(positional, value)
+		end
+
+		positionals = positionals:slice(2, #positionals)
+		return new_arg_mode()
+	end
+
+	missing_value_mode = function(arg)
+		errors_holder:add(errors.missing_value(arg.name_with_hyphens))
+		return new_arg_mode()
+	end
+
+	wrong_value_mode = function(error)
+		errors_holder:add(error)
+		return new_arg_mode()
+	end
+
+	unexpected_positional_mode = function(value)
+		errors_holder:add(errors.unexpected_positional(value))
+		return new_arg_mode()
+	end
+
+	local help = new_arg_mode()
+	return help, errors_holder:errors()
+end
+
 local function options_table(cmd)
 	local options = { positionals = {}, flags = {} }
 
@@ -131,131 +212,29 @@ local function options_table(cmd)
 	]]
 	function options:extract_values()
 		local values = {}
+		local errors_holder = errors.holder()
 
 		for _, positional in ipairs(self.positionals) do
-			values[positional.name_with_underscores] = positional.value
+			if not positional.value then
+				errors_holder.add(errors.missing_value(positional.name_with_hyphens))
+			else
+				values[positional.name_with_underscores] = positional.value
+			end
 		end
 
 		for _, flag in pairs(self.flags) do
-			values[flag.name_with_underscores] = flag.value
+			if not flag.value then
+				errors_holder.add(errors.missing_value(flag.name_with_hyphens))
+			else
+				values[flag.name_with_underscores] = flag.value
+			end
 		end
 
-		return values
+		return values, errors_holder.errors()
 	end
 
 	function options:parse_args()
-		local flag_mode, flag_name_mode, flag_value_mode, unexpected_flag_mode, set_flag_mode
-		local positional_mode, positional_value_mode, unexpected_positional_mode
-		local missing_value_mode, wrong_value_mode
-
-		local args = arguments()
-		local positionals = slice(self.positionals, 1, #self.positionals)
-		local errors_holder = errors.holder()
-
-		local new_arg_mode = function()
-			local item = args:next()
-
-			if not item then return end
-
-			if starts_with_hyphen(item) then
-				return flag_mode(item)
-			end
-
-			return positional_mode(item)
-		end
-
-		flag_mode = function(item)
-			local left, right = split_at_equal_sign(item)
-			return flag_name_mode(left, right)
-		end
-
-		flag_name_mode = function(name, value)
-			if name == "help" then return "help" end
-
-			local flag = self.flags[name]
-
-			if not flag then return unexpected_flag_mode(name) end
-
-			return flag_value_mode(flag, value)
-		end
-
-		flag_value_mode = function(flag, value)
-			if value or flag.type == option.boolean then
-				return set_flag_mode(flag, value)
-			end
-
-			local item = args:next()
-
-			if item == "=" then
-				item = args:next()
-			end
-
-			if item and not starts_with_hyphen(item) then
-				return set_flag_mode(flag, item)
-			end
-
-			return missing_value_mode(flag)
-		end
-
-		set_flag_mode = function(flag, value)
-			local error = flag:set(value)
-
-			if error then return wrong_value_mode(error) end
-
-			return new_arg_mode()
-		end
-
-		unexpected_flag_mode = function(name)
-			errors_holder:add(errors.unknown_arg(name))
-			return new_arg_mode()
-		end
-
-		positional_mode = function(value)
-			local positional = positionals[1]
-
-			if not positional then return unexpected_positional_mode(value) end
-
-			return positional_value_mode(positional, value)
-		end
-
-		positional_value_mode = function(positional, value)
-			if not value then return end
-
-			if positional.many and starts_with_hyphen(value) then
-				positionals = positionals:slice(2, #positionals)
-				return flag_mode(value)
-			end
-
-			local error = positional:add(value)
-
-			if error then return wrong_value_mode(error) end
-
-			if positional.many then
-				value = args:next()
-				return positional_value_mode(positional, value)
-			end
-
-			positionals = positionals:slice(2, #positionals)
-			return new_arg_mode()
-		end
-
-		missing_value_mode = function(arg)
-			errors_holder:add(errors.missing_value(arg.name_with_hyphens))
-			return new_arg_mode()
-		end
-
-		wrong_value_mode = function(error)
-			errors_holder:add(error)
-			return new_arg_mode()
-		end
-
-		unexpected_positional_mode = function(value)
-			errors_holder:add(errors.unexpected_positional(value))
-			return new_arg_mode()
-		end
-
-		local help = new_arg_mode()
-		return help, errors_holder:errors()
+		return parse_args(self)
 	end
 
 	return options
@@ -268,7 +247,7 @@ function has_subcommands()
     return commands_defined
 end
 
-local function anonymous(data)
+function anonymous(data)
 	local cmd = {
 		__command = true,
 		options = options_table(data)
@@ -328,6 +307,41 @@ function merge_options(cmd1, cmd2)
 	end
 
 	return options1
+end
+
+function load(global_cmd)
+	-- We are going to define a fake `options_table` with a sole positional option to
+	-- be able to use `parse_args` to load the command name from the
+	-- input command line arguments. By the way `parse_args` is designed,
+	-- the command name will be stored in the fake command's positional
+	-- argument.
+
+	local global_options = (global_cmd and global_cmd.options) and global_cmd.options or {}
+
+	local fake_options = {
+		flags = global_options.flags or {},
+		positionals = {
+			option.positional "command-name" { type = option.string }
+		}
+	}
+
+	local help = parse_args(fake_options)
+
+	if help then return nil, help end
+
+	local command_name = fake_options.positionals.command_name
+
+	if not command_name then
+		return nil, errors.command_not_provided(command_list())
+	end
+
+	local command = _G[command_name]
+
+	if not is_command(command) then
+		return nil, errors.unknown_command(command_name, command_list())
+	end
+
+	return command
 end
 
 return _ENV
