@@ -247,6 +247,36 @@ function has_subcommands()
     return commands_defined
 end
 
+-- A `command` table has this public structure:
+-- {
+--     options = *an options_table*
+-- }
+function command(data)
+	commands_defined = true
+
+	local cmd = {
+		__command = true
+	}
+
+	-- Commands are lazy-loaded. When they are first accessed, the following
+	-- metatable is used, which builds the anonymous command and changes the
+	-- metatable to it.
+	local anon
+	local meta = {
+		__index = function(t, index)
+			if not anon then
+				anon = anonymous(data)
+			end
+
+			return anon[index]
+		end
+	}
+
+	setmetatable(cmd, meta)
+
+	return cmd
+end
+
 function anonymous(data)
 	local cmd = {
 		__command = true,
@@ -260,32 +290,6 @@ function anonymous(data)
 	if type(data[#data]) == "function" then
 		cmd.fn = data[#data]
 	end
-
-	return cmd
-end
-
-function command(data)
-	commands_defined = true
-
-	local cmd = {
-		__command = true
-	}
-
-	-- Commands are lazy-loaded. When they are first accessed, the following
-	-- metatable is used, which builds the anonymous command and changes the
-	-- metatable to it.
-	local meta = {
-		__index = function(t, index)
-			local anon = anonymous(data)
-
-			anon.__index = anon
-			setmetatable(t, anon)
-
-			return anon[index]
-		end
-	}
-
-	setmetatable(cmd, meta)
 
 	return cmd
 end
