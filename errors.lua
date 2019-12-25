@@ -32,7 +32,7 @@ function assert(...)
 	local args = {...}
 	local last = args[#args]
 
-	if last.__error then
+	if last and last.__error then
 		exit_with(last)
 	end
 
