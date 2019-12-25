@@ -110,19 +110,21 @@ function positional(name)
 		}
 
 		function pos:add(value)
-			if self.type == number then
-				value = tonumber(value)
+			local input_number
 
-				if not self.value then
+			if self.type == number then
+				input_number = tonumber(value)
+
+				if not input_number then
 					return errors.not_a_number(self.name_with_hyphens, value)
 				end
 			end
 
 			if self.many then
 				self.value = self.value or {}
-				self.value[#self.value + 1] = value
+				self.value[#self.value + 1] = input_number
 			else
-				self.value = value
+				self.value = input_number
 			end
 		end
 
