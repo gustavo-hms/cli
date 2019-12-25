@@ -159,9 +159,9 @@ local function parse_args(options)
 			return flag_mode(value)
 		end
 
-		local error = positional:add(value)
+		local err = positional:add(value)
 
-		if error then return wrong_value_mode(error) end
+		if err then return wrong_value_mode(err) end
 
 		if positional.many then
 			value = args:next()
@@ -177,8 +177,8 @@ local function parse_args(options)
 		return new_arg_mode()
 	end
 
-	wrong_value_mode = function(error)
-		errors_holder:add(error)
+	wrong_value_mode = function(err)
+		errors_holder:add(err)
 		return new_arg_mode()
 	end
 
@@ -230,7 +230,7 @@ local function options_table(cmd)
 			end
 		end
 
-		return values, errors_holder.errors()
+		return values, errors_holder:errors()
 	end
 
 	function options:parse_args()
@@ -333,16 +333,16 @@ function load(global_cmd)
 
 	if help then return nil, help end
 
-	local command_name = fake_options.positionals.command_name
+	local command_name = fake_options.positionals[1]
 
-	if not command_name then
+	if not command_name.value then
 		return nil, errors.command_not_provided(command_list())
 	end
 
-	local command = _G[command_name]
+	local command = _G[command_name.value]
 
 	if not is_command(command) then
-		return nil, errors.unknown_command(command_name, command_list())
+		return nil, errors.unknown_command(command_name.value, command_list())
 	end
 
 	return command
