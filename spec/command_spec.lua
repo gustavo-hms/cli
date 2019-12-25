@@ -167,3 +167,24 @@ describe("The #command function", function()
 		assert.are.equal(1, #options.positionals)
 	end)
 end)
+
+insulate("The #load function", function()
+	it("should find the correct command", function()
+		_G.arg = {"that", "--aflag", "=", "1"}
+		package.loaded.command = nil
+		local command = require "command"
+
+		_G.this = command.command {
+			"This"
+		}
+
+		_G.that = command.command {
+			"That"
+		}
+
+		local cmd, help_or_error = command.load({})
+		assert.is_nil(help_or_error)
+		assert.is.not_nil(cmd)
+		assert.are.equal("That", cmd.description)
+	end)
+end)
