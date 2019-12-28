@@ -146,11 +146,38 @@ describe("The #positional function", function()
 	it("should take into account the `many` option", function()
 		local positional = option.positional "este-aqui" {
 			type = option.number,
-			default = 17,
+			default = {17, 19},
 			many = true
 		}
 
-		assert.is.equal({17}, positional.value)
+		assert.are.same({17, 19}, positional.value)
+	end)
+
+	it("should type check a default argument", function()
+		assert.has.errors(function()
+			option.positional "nome" {
+				type = option.number,
+				default = "dezessete"
+			}
+		end)
+	end)
+
+	it("should type check a default argument when the `many` flag is set", function()
+		assert.has.errors(function()
+			option.positional "nome" {
+				type = option.number,
+				default = 17,
+				many = true
+			}
+		end)
+
+		assert.has.errors(function()
+			option.positional "nome" {
+				type = option.number,
+				default = {17, "dezessete"},
+				many = true
+			}
+		end)
 	end)
 end)
 

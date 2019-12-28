@@ -1,5 +1,8 @@
 local errors = require "errors"
 
+local error = error
+local format = string.format
+local ipairs = ipairs
 local tonumber = tonumber
 local type = type
 
@@ -98,6 +101,23 @@ end
 
 function positional(name)
 	return function(data)
+		if data.many and data.default then
+			if type(data.default) ~= "table" then
+				error(format("Positional argument “%s” is set to receive multiple arguments, but its default value is not a table", name))
+			end
+
+			for k, _ in ipairs(data.default) do
+				if type(data.default[k]) ~= "number" then
+					error(format("The type of the positional argument “%s” is set to be a number, but some of its default values are not a number", name))
+				end
+			end
+
+		elseif data.type == number and data.default then
+			if type(data.default) ~= "number" then
+				error(format("The type of the positional argument “%s” is set to be a number, but its default value is not a number", name))
+			end
+		end
+
 		local pos = {
 			__positional = true,
 
