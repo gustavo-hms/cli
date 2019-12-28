@@ -3,6 +3,7 @@ insulate("A #complete program", function()
 		local errors = require "errors"
 		-- Mock errors.exit_with
 		errors.exit_with = function(err)
+			print(err)
 			assert.is_false(true) -- `exit_with` shouldn't be called
 		end
 
@@ -67,7 +68,6 @@ insulate("A #complete program", function()
 			end
 		}
 
-		assert.stub(errors.exit_with).was_not_called()
-		assert.are.equal(27, inspect.sum)
+		assert.are.equal(37, inspect.sum)
 	end)
 end)
