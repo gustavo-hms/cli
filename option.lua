@@ -112,7 +112,7 @@ function positional(name)
 				end
 			end
 
-		elseif data.type == number and data.default then
+		elseif data.default and data.type == number then
 			if type(data.default) ~= "number" then
 				error(format("The type of the positional argument “%s” is set to be a number, but its default value is not a number", name))
 			end
