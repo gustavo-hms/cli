@@ -110,7 +110,7 @@ function positional(name)
 		}
 
 		function pos:add(value)
-			local input_number
+			local input_number = value
 
 			if self.type == number then
 				input_number = tonumber(value)

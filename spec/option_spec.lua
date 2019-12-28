@@ -153,3 +153,50 @@ describe("The #positional function", function()
 		assert.is.equal({17}, positional.value)
 	end)
 end)
+
+describe("The #positional #add method", function()
+	it("should update its `value` attribute", function()
+		local positional = option.positional "name" {
+			type = option.string
+		}
+
+		local err = positional:add("nome")
+		assert.is_nil(err)
+		assert.are.equal("nome", positional.value)
+	end)
+
+	it("should set #many values", function()
+		local positional = option.positional "name" {
+			type = option.string,
+			many = true
+		}
+
+		local err = positional:add("um")
+		assert.is_nil(err)
+
+		err = positional:add("dois")
+		assert.is_nil(err)
+
+		err = positional:add("três")
+		assert.is_nil(err)
+
+		assert.are.same({"um", "dois", "três"}, positional.value)
+	end)
+
+	it("shouldn't set #many values", function()
+		local positional = option.positional "name" {
+			type = option.string
+		}
+
+		local err = positional:add("um")
+		assert.is_nil(err)
+
+		err = positional:add("dois")
+		assert.is_nil(err)
+
+		err = positional:add("três")
+		assert.is_nil(err)
+
+		assert.are.equal("três", positional.value)
+	end)
+end)
