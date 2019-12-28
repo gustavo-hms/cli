@@ -49,7 +49,12 @@ function flag(name)
 		-- which are false by default
 		if data.type == boolean then
 			flg.value = false
-		else
+
+		elseif data.default and data.type == number then
+			if type(data.default) ~= "number" then
+				error(format("The type of the flag “%s” is set to be a number, but its default value is not a number", name))
+			end
+
 			flg.value = data.default
 		end
 

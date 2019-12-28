@@ -36,15 +36,6 @@ describe("The #flag function", function()
 		assert.is_nil(flag.value)
 	end)
 
-	it("shouldn't build a flag when default value doesn't have the right type", function()
-		local flag = option.flag "name" {
-			type = option.number,
-			default = "dezessete"
-		}
-
-		assert.is_nil(flag)
-	end)
-
 	it("should set the name of the flag", function()
 		local flag = option.flag "p,por-dia" {
 			"Outra flag",
@@ -108,6 +99,15 @@ describe("The #flag function", function()
 		for k in pairs(expected) do
 			assert.is.equal(expected[k], flag[k])
 		end
+	end)
+
+	it("should type check default arguments", function()
+		assert.has.errors(function()
+			option.flag "nome" {
+				type = option.number,
+				default = "dezessete"
+			}
+		end)
 	end)
 end)
 
