@@ -24,24 +24,6 @@ insulate("The #parse_args function", function()
 		assert.are.same("cinco", cinco.value)
 	end)
 
-	it("should detect a `help` flag", function()
-		_G.arg = { "--um", "=", "1", "--dois=doze", "--help", "-q=4", "-c=cinco" }
-		package.loaded.command = nil
-
-		local command = require "command"
-
-		local um = option.flag "um" { type = option.number }
-		local dois = option.flag "d,dois" { type = option.string }
-		local quatro = option.flag "q,quatro" { type = option.number }
-		local cinco = option.flag "c" { type = option.string }
-		local cmd = command.command { um, dois, quatro, cinco }
-
-		local help, err = cmd.options:parse_args()
-
-		assert.are.same("help", help)
-		assert.is_nil(err)
-	end)
-
 	it("should set the flags and the positional arguments", function()
 		_G.arg = { "--um", "=", "1", "--dois=doze", "entrada", "saida", "--tres" }
 		package.loaded.command = nil
@@ -186,5 +168,27 @@ insulate("The #load function", function()
 		assert.is_nil(help_or_error)
 		assert.is.not_nil(cmd)
 		assert.are.equal("That", cmd.description)
+	end)
+
+	it("should detect a global `help` flag", function()
+		_G.arg = {"--help"}
+		package.loaded.command = nil
+		local command = require "command"
+
+		_G.this = command.command {
+			"This",
+
+			option.flag "a-flag" {
+				type = option.string
+			}
+		}
+
+		_G.that = command.command {
+			"That"
+		}
+
+		local cmd, help = command.load({})
+		assert.is_nil(cmd)
+		assert.are.same("help", help)
 	end)
 end)

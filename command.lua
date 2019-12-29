@@ -81,6 +81,12 @@ local function parse_args(options)
 	local positional_mode, positional_value_mode, unexpected_positional_mode
 	local missing_value_mode, wrong_value_mode
 
+	local help = option.flag "h,help" {
+		"Show the help",
+		type = option.boolean
+	}
+	options.flags.help, options.flags.h = help, help
+
 	local args = arguments()
 	local positionals = slice(options.positionals, 1, #options.positionals)
 	local errors_holder = errors.holder()
@@ -103,8 +109,6 @@ local function parse_args(options)
 	end
 
 	flag_name_mode = function(name, value)
-		if name == "help" then return "help" end
-
 		local flag = options.flags[name]
 
 		if not flag then return unexpected_flag_mode(name) end
@@ -187,8 +191,8 @@ local function parse_args(options)
 		return new_arg_mode()
 	end
 
-	local help = new_arg_mode()
-	return help, errors_holder:errors()
+	new_arg_mode()
+	return errors_holder:errors()
 end
 
 local function options_table(cmd)
@@ -329,20 +333,22 @@ function load(global_cmd)
 		}
 	}
 
-	local help = parse_args(fake_options)
-
-	if help then return nil, help end
+	parse_args(fake_options)
 
 	local command_name = fake_options.positionals[1]
 
+	if fake_options.flags.help.value then
+		return command_name.value, "help"
+	end
+
 	if not command_name.value then
-		return nil, errors.command_not_provided(command_list())
+		return errors.command_not_provided(command_list())
 	end
 
 	local command = _G[command_name.value]
 
 	if not is_command(command) then
-		return nil, errors.unknown_command(command_name.value, command_list())
+		return errors.unknown_command(command_name.value, command_list())
 	end
 
 	return command
