@@ -164,7 +164,7 @@ insulate("The #load function", function()
 			"That"
 		}
 
-		local cmd, help_or_error = command.load({})
+		local cmd, help_or_error = command.load(command.anonymous {})
 		assert.is_nil(help_or_error)
 		assert.is.not_nil(cmd)
 		assert.are.equal("That", cmd.description)
@@ -187,7 +187,7 @@ insulate("The #load function", function()
 			"That"
 		}
 
-		local cmd, help = command.load({})
+		local cmd, help = command.load(command.anonymous {})
 		assert.is_nil(cmd)
 		assert.are.same("help", help)
 	end)

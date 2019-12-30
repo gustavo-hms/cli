@@ -7,7 +7,7 @@ local ipairs = ipairs
 local pairs = pairs
 local setmetatable = setmetatable
 local getmetatable = getmetatable
-local sort = table.sort
+local table = table
 local _G = _G
 
 local _ENV = {}
@@ -21,7 +21,7 @@ local function command_list()
 		end
 	end
 
-	sort(cmds)
+	table.sort(cmds)
 
 	return cmds
 end
@@ -83,7 +83,8 @@ local function parse_args(options)
 
 	local help = option.flag "h,help" {
 		"Show the help",
-		type = option.boolean
+		type = option.boolean,
+		value = false
 	}
 	options.flags.help, options.flags.h = help, help
 
@@ -135,9 +136,9 @@ local function parse_args(options)
 	end
 
 	set_flag_mode = function(flag, value)
-		local error = flag:set(value)
+		local err = flag:set(value)
 
-		if error then return wrong_value_mode(error) end
+		if err then return wrong_value_mode(err) end
 
 		return new_arg_mode()
 	end
@@ -220,7 +221,7 @@ local function options_table(cmd)
 
 		for _, positional in ipairs(self.positionals) do
 			if not positional.value then
-				errors_holder.add(errors.missing_value(positional.name_with_hyphens))
+				errors_holder:add(errors.missing_value(positional.name_with_hyphens))
 			else
 				values[positional.name_with_underscores] = positional.value
 			end
@@ -228,7 +229,7 @@ local function options_table(cmd)
 
 		for _, flag in pairs(self.flags) do
 			if not flag.value then
-				errors_holder.add(errors.missing_value(flag.name_with_hyphens))
+				errors_holder:add(errors.missing_value(flag.name_with_hyphens))
 			else
 				values[flag.name_with_underscores] = flag.value
 			end
@@ -318,37 +319,32 @@ function merge_options(cmd1, cmd2)
 end
 
 function load(global_cmd)
-	-- We are going to define a fake `options_table` with a sole positional option to
-	-- be able to use `parse_args` to load the command name from the
-	-- input command line arguments. By the way `parse_args` is designed,
-	-- the command name will be stored in the fake command's positional
-	-- argument.
+	-- We are going to use the `parse_args` function to retrieve the command
+	-- name and, possibly, the `help` flag. To do so, we will define a fake
+	-- command with a sole positional argument corresponding to the command
+	-- name.
+	local name = option.positional "==command-name==" { type = option.string }
+	local fake_cmd = anonymous { name }
+	local options = fake_cmd.options
+	parse_args(options)
 
-	local global_options = (global_cmd and global_cmd.options) and global_cmd.options or {}
-
-	local fake_options = {
-		flags = global_options.flags or {},
-		positionals = {
-			option.positional "command-name" { type = option.string }
-		}
-	}
-
-	parse_args(fake_options)
-
-	local command_name = fake_options.positionals[1]
-
-	if fake_options.flags.help.value then
-		return command_name.value, "help"
+	if options.flags.help.value then
+		return name.value, "help"
 	end
 
-	if not command_name.value then
+	if not name.value then
 		return errors.command_not_provided(command_list())
 	end
 
-	local command = _G[command_name.value]
+	-- Since we need the command name's positional argument to parse the
+	-- command line arguments correctly, we will insert it in the global
+	-- command's options_table.
+	global_cmd.options = merge_options(fake_cmd, global_cmd)
+
+	local command = _G[name.value]
 
 	if not is_command(command) then
-		return errors.unknown_command(command_name.value, command_list())
+		return errors.unknown_command(name.value, command_list())
 	end
 
 	return command
