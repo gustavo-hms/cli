@@ -83,8 +83,7 @@ local function parse_args(options)
 
 	local help = option.flag "h,help" {
 		"Show the help",
-		type = option.boolean,
-		value = false
+		type = option.boolean
 	}
 	options.flags.help, options.flags.h = help, help
 
@@ -228,7 +227,7 @@ local function options_table(cmd)
 		end
 
 		for _, flag in pairs(self.flags) do
-			if not flag.value then
+			if flag.value == nil then
 				errors_holder:add(errors.missing_value(flag.name_with_hyphens))
 			else
 				values[flag.name_with_underscores] = flag.value
