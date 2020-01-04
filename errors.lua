@@ -45,7 +45,8 @@ local function new(code, ...)
 	local extra_args = {...}
 	local err = {
 		__error = true,
-		code = code
+		code = code,
+		extra_info = extra_args
 	}
 
 	local meta = {
@@ -107,7 +108,15 @@ function holder()
 	function h:errors()
 		if self.empty then return nil end
 
-		local errs = { __error = true }
+		local errs = {
+			__error = true,
+
+			-- Check if it contains some error with the provided code and
+			-- returns it. Used for tests
+			error_with_code = function(code)
+				return h.errs[code] and h.errs[code][1]
+			end
+		}
 
 		local meta = {
 			__tostring = function()

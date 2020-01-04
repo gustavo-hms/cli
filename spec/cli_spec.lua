@@ -1,4 +1,80 @@
-insulate("A #complete program", function()
+insulate("A #program", function()
+	local errors = require "errors"
+	stub(errors, "exit_with")
+
+	it("should fill the options' values", function()
+		_G.arg = {"--value", "17"}
+		local cli = require "cli"
+
+		cli.program {
+			cli.flag "v,value" {
+				"A mandatory flag",
+				type = cli.number
+			},
+
+			function(options)
+				assert.are.equal(17, options.value)
+			end
+		}
+
+		assert.stub(errors.exit_with).was_not.called()
+	end)
+
+	it("should fill the options' values when passed with a short name", function()
+		_G.arg = {"-v", "19"}
+		package.loaded.cli = nil
+		package.loaded.command = nil
+		local cli = require "cli"
+
+		cli.program {
+			cli.flag "v,value" {
+				"A mandatory flag",
+				type = cli.number
+			},
+
+			function(options)
+				assert.are.equal(19, options.value)
+			end
+		}
+
+		assert.stub(errors.exit_with).was_not.called()
+	end)
+end)
+
+insulate("A #program", function()
+	it("should complain if a #mandatory option is missing", function()
+		local errors = require "errors"
+		
+		errors.exit_with = function(err)
+			local expected = errors.missing_value("mandatory")
+			assert.are.same(expected, err.error_with_code("missing_value"))
+		end
+
+		local spy_exit_with = spy.on(errors, "exit_with")
+
+		_G.arg = {"--optional", "a-value"}
+
+		local cli = require "cli"
+
+		cli.program {
+			cli.flag "mandatory" {
+				"A mandatory flag"
+			},
+
+			cli.flag "optional" {
+				"An optional flag",
+				default = "filled"
+			},
+
+			function(options)
+			end
+		}
+
+		assert.spy(spy_exit_with).was.called()
+	end)
+end)
+
+insulate("A #complete #program", function()
 	it("should run the `#add` command", function()
 		local errors = require "errors"
 		-- Mock errors.exit_with
@@ -14,10 +90,10 @@ insulate("A #complete program", function()
 		_G.add = cli.command {
 			"Add all the given numbers",
 
-			function(args, inspect)
+			function(options, inspect)
 				local sum = 0
 
-				for _, v in ipairs(args.numbers) do
+				for _, v in ipairs(options.numbers) do
 					sum = sum + v
 				end
 
@@ -28,8 +104,8 @@ insulate("A #complete program", function()
 		_G.max = cli.command {
 			"Find the maximum value",
 
-			function(args, inspect)
-				inspect.max = math.max(table.unpack(args.numbers))
+			function(options, inspect)
+				inspect.max = math.max(table.unpack(options.numbers))
 			end
 		}
 
@@ -42,9 +118,9 @@ insulate("A #complete program", function()
 				type = cli.number
 			},
 
-			function(args, inspect)
-				for _, v in ipairs(args.numbers) do
-					if v > args.cutoff then
+			function(options, inspect)
+				for _, v in ipairs(options.numbers) do
+					if v > options.cutoff then
 						inspect[#inspect+1] = v
 					end
 				end
@@ -97,15 +173,15 @@ insulate("A #complete program", function()
 				type = cli.string
 			},
 
-			function(args, inspect)
-				inspect.output = args.output
-				inspect.input = args.input
+			function(options, inspect)
+				inspect.output = options.output
+				inspect.input = options.input
 			end
 		}
 
 		_G.do_not = cli.command {
 			"Shouldn't enter here",
-			
+
 			function(_, inspect)
 				inspect.do_not = true
 			end
