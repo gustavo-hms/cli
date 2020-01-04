@@ -28,7 +28,6 @@ function locale(l)
 	selected = translations[l] or selected
 end
 
-tr = {}
 local meta = {
 	__index = function(_, index)
 		return function(...)
@@ -36,6 +35,6 @@ local meta = {
 		end
 	end
 }
-setmetatable(tr, meta)
+setmetatable(_ENV, meta)
 
 return _ENV
