@@ -295,6 +295,11 @@ function anonymous(data)
 		cmd.fn = data[#data]
 	end
 
+	-- Has the user entered a `--help` flag?
+	function cmd:help()
+		return self.options.flags.help and self.options.flags.help.value
+	end
+
 	return cmd
 end
 
@@ -324,10 +329,9 @@ function load(global_cmd)
 	-- name.
 	local name = option.positional "==command-name==" { type = option.string }
 	local fake_cmd = anonymous { name }
-	local options = fake_cmd.options
-	parse_args(options)
+	parse_args(fake_cmd.options)
 
-	if options.flags.help.value then
+	if fake_cmd:help() then
 		return name.value, "help"
 	end
 

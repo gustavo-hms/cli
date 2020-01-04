@@ -18,7 +18,7 @@ local function program_with_options(program_cmd)
 	local options = program_cmd.options
 	errors.assert(options:parse_args())
 
-	if options.flags.help.value then return --[[ TODO ]] end
+	if program_cmd:help() then return --[[ TODO ]] end
 
 	if program_cmd.fn then
 		local values = errors.assert(options:extract_values())
