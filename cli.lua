@@ -7,6 +7,7 @@ local _G = _G
 local arg = arg
 local format = string.format
 local ipairs = ipairs
+local next = next
 local pairs = pairs
 local print = print
 local table = table
@@ -54,25 +55,38 @@ local function parse_commands(global_cmd)
 			cmd_text[#cmd_text+1] = self:inline_help_for(command)
 		end
 
-		return translations.help_with_subcommands(self.description, table.concat(cmd_text), self.name)
+		return translations.help_with_subcommands(self.global.description, table.concat(cmd_text, "\n"), self.global.name)
 	end
 
 	function parsed:inline_help_for(command)
-		local options = #self.options.flags > 0 and translations.help_options() or ""
-		
-		local positonals = {}
+		-- Does the command have flags?
+		local options = next(command.options.flags) and translations.help_options() or ""
 
-		for _, positional in ipairs(self.options.positonals) do
-			local name = positional.name_with_hyphens
+		local positionals = {}
 
-			if positional.many then
-				name = name .. "..."
+		local function positional_names(cmd)
+			for _, positional in ipairs(cmd.options.positionals) do
+				local name = positional.name_with_hyphens
+
+				if positional.many then
+					name = name .. "..."
+				end
+
+				positionals[#positionals+1] = name
 			end
-
-			positonals[#positonals+1] = name
 		end
 
-		return format("\t%s %s%s%s\n\n", self.name, command.name, options, table.concat(positonals, " "))
+		positional_names(self.global)
+		positional_names(command)
+
+		return format(
+			"    %s %s%s%s\n        %s\n",
+			self.global.name,
+			command.name,
+			options,
+			#positionals > 0 and " " .. table.concat(positionals, " ") or "",
+			command.description
+		)
 	end
 
 	return parsed
@@ -82,7 +96,7 @@ local function program_with_options(program_cmd)
 	local options = program_cmd.options
 	errors.assert(options:parse_args())
 
-	if program_cmd:help() then return --[[ TODO ]] end
+	if program_cmd:help_requested() then return --[[ TODO ]] end
 
 	if program_cmd.fn then
 		local values = errors.assert(options:extract_values())

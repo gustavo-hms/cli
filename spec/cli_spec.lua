@@ -271,12 +271,12 @@ Usage:
     compute add numbers...
         Add all the given numbers
   
-    compute max numbers...
-        Find the maximum value
-  
     compute all-above [options] numbers...
         Print all numbers above the given value
 
+    compute max numbers...
+        Find the maximum value
+  
 You can run
 
     compute <command> --help

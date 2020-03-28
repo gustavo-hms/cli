@@ -303,7 +303,7 @@ function anonymous(data)
 	end
 
 	-- Has the user entered a `--help` flag?
-	function cmd:help()
+	function cmd:help_requested()
 		return self.options.flags.help and self.options.flags.help.value
 	end
 
@@ -338,7 +338,7 @@ function load(global_cmd)
 	local fake_cmd = anonymous { name }
 	parse_args(fake_cmd.options)
 
-	if fake_cmd:help() then
+	if fake_cmd:help_requested() then
 		return name.value, "help"
 	end
 

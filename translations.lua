@@ -25,10 +25,11 @@ local translations = {
 		help_with_subcommands = [[%s
 
 Uso:
+
 %s
 Você pode rodar
 
-	%s <command> --help
+    %s <comando> --help
 
 para obter maiores detalhes sobre um comando específico.
 
