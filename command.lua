@@ -282,17 +282,24 @@ function command(data)
 end
 
 function anonymous(data)
-	local cmd = {
-		__command = true,
-		options = options_table(data)
-	}
+	local cmd
 
-	if type(data[1]) == "string" then
-		cmd.description = data[1]
-	end
+	if type(data) == "string" then
+		cmd = {
+			__command = true,
 
-	if type(data[#data]) == "function" then
-		cmd.fn = data[#data]
+			options = options_table({}),
+			description = data
+		}
+
+	else
+		cmd = {
+			__command = true,
+
+			options = options_table(data),
+			description = type(data[1]) == "string" and data[1] or "",
+			fn = type(data[#data]) == "function" and data[#data] or nil
+		}
 	end
 
 	-- Has the user entered a `--help` flag?
