@@ -18,7 +18,34 @@ local translations = {
 
 		command_not_provided = "Erro: não foi informado qual comando executar. Os comandos disponíveis são:\n\n%s\n",
 
-		unknown_command = "Erro: o comando “%s” não existe. Os comandos disponíveis são:\n\n%s\n"
+		unknown_command = "Erro: o comando “%s” não existe. Os comandos disponíveis são:\n\n%s\n",
+
+		help_options = " [opções]",
+
+		help_with_subcommands = [[%s
+
+Uso:
+%s
+Você pode rodar
+
+	%s <command> --help
+
+para obter maiores detalhes sobre um comando específico.
+
+]],
+
+		help_subcommand_with_options_and_arguments = [[%s
+
+Uso:
+%s
+
+Opções:
+%s
+
+Argumentos:
+%s
+
+]]
 	}
 }
 
