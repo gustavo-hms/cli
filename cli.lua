@@ -107,7 +107,7 @@ end
 local function program_with_commands(global_cmd)
 	local subcommand, help = errors.assert(cmd.load(global_cmd))
 
-	if help then 
+	if help then
 		local cmd_info = parse_commands(global_cmd)
 		print(cmd_info:help())
 		return

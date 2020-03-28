@@ -232,6 +232,8 @@ insulate("A #program", function()
 		package.loaded.cli = nil
 		local cli = require "cli"
 
+		cli.locale "en_US"
+
 		_G.add = cli.command {
 			"Add all the given numbers"
 		}

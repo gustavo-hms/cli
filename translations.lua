@@ -47,6 +47,51 @@ Argumentos:
 %s
 
 ]]
+	},
+	en_US = {
+		holder = "Errors were found in the program execution.",
+
+		not_expecting = "The value “%s” was passed to the option “%s”, which doesn't expect any value.",
+
+		not_a_number = "The option “%s” expects a number, but the given value was “%s”.",
+
+		missing_value = "No value given to the option “%s”.",
+
+		unknown_arg = "Unknown option: “%s”.",
+
+		unexpected_positional = "The given value “%s” and the program doesn't know what to do with it.",
+
+		command_not_provided = "Error: no command given. Available commands are:\n\n%s\n",
+
+		unknown_command = "Error: the command “%s” doesn't exist. Available commands are:\n\n%s\n",
+
+		help_options = " [options]",
+
+		help_with_subcommands = [[%s
+
+Usage:
+
+%s
+You can run
+
+    %s <command> --help
+
+to get more details about a specific command.
+
+]],
+
+		help_subcommand_with_options_and_arguments = [[%s
+
+Usage:
+%s
+
+Options:
+%s
+
+Arguments:
+%s
+
+]]
 	}
 }
 
