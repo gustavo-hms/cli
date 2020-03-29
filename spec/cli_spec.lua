@@ -272,13 +272,13 @@ Usage:
 
     compute add numbers...
         Add all the given numbers
-  
+
     compute all-above [options] numbers...
         Print all numbers above the given value
 
     compute max numbers...
         Find the maximum value
-  
+
 You can run
 
     compute <command> --help
@@ -335,7 +335,7 @@ Arguments:
 	    The numbers to operate upon
 ]]
 
-		assert.are.same(expected, table.concat(printer.output))	
+		assert.are.same(expected, table.concat(printer.output))
 	end)
 
 	it("should accept a string as argument", function()
@@ -354,6 +354,26 @@ Arguments:
 		package.loaded.cli = nil
 		local cli = require "cli"
 
+		cli.locale "en_US"
+
+		_G.add = cli.command {
+			"Add all the given numbers"
+		}
+
+		_G.max = cli.command {
+			"Find the maximum value"
+		}
+
+		_G.all_above = cli.command {
+			"Print all numbers above the given value",
+
+			cli.flag "c,cutoff" {
+				"The value above which all numbers are retained",
+
+				type = cli.number
+			}
+		}
+
 		cli.program "A program to compute numbers"
 
 		assert.stub(errors.exit_with).was_not.called()
@@ -365,12 +385,12 @@ Usage:
 
     compute add
         Add all the given numbers
-  
-    compute max
-        Find the maximum value
-  
+
     compute all-above [options]
         Print all numbers above the given value
+
+    compute max
+        Find the maximum value
 
 You can run
 
@@ -379,5 +399,6 @@ You can run
 to get more details about a specific command.
 
 ]]
+		assert.are.same(expected, table.concat(printer.output))	
 	end)
 end)
