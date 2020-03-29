@@ -1,4 +1,5 @@
 local errors = require "errors"
+local txt = require "text"
 
 local error = error
 local format = string.format
@@ -11,24 +12,6 @@ local _ENV = {}
 boolean = "boolean"
 number = "number"
 string = "string"
-
-local function split_at_comma(text)
-	local left, right = text:match("([^,]+),?(.*)")
-
-	if not right or #right == 0 then
-		return left
-	end
-
-	return left, right
-end
-
-local function hyphens_to_underscores(name)
-	return (name:gsub("-", "_"))
-end
-
-local function underscores_to_hyphens(name)
-	return (name:gsub("_", "-"))
-end
 
 -- Both `flag` and `positional` have this common structure:
 -- {
@@ -55,15 +38,15 @@ function flag(name)
 			value = data.default
 		end
 
-		local short, long = split_at_comma(name)
+		local short, long = txt.split_at_comma(name)
 		long = long or short
 
 		local flg = {
 			__flag = true,
 
 			short_name = short,
-			name_with_hyphens = underscores_to_hyphens(long),
-			name_with_underscores = hyphens_to_underscores(long),
+			name_with_hyphens = txt.underscores_to_hyphens(long),
+			name_with_underscores = txt.hyphens_to_underscores(long),
 			description = type(data[1]) ~= "string" and "" or data[1],
 			type = data.type or string,
 			value = value
@@ -125,8 +108,8 @@ function positional(name)
 		local pos = {
 			__positional = true,
 
-			name_with_hyphens = underscores_to_hyphens(name),
-			name_with_underscores = hyphens_to_underscores(name),
+			name_with_hyphens = txt.underscores_to_hyphens(name),
+			name_with_underscores = txt.hyphens_to_underscores(name),
 			description = type(data[1]) ~= "string" and "" or data[1],
 			type = data.type or string,
 			many = data.many,

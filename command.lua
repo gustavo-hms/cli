@@ -1,5 +1,6 @@
-local option = require "option"
 local errors = require "errors"
+local option = require "option"
+local txt = require "text"
 
 local arg = arg
 local type = type
@@ -65,16 +66,6 @@ local function arguments()
 	return args
 end
 
-local function split_at_equal_sign(text)
-	local left, right = text:match("-?-?([^=]+)=?(.*)")
-
-	if not right or #right == 0 then
-		return left
-	end
-
-	return left, right
-end
-
 -- State machine to parse command line arguments
 local function parse_args(options)
 	local flag_mode, flag_name_mode, flag_value_mode, unexpected_flag_mode, set_flag_mode
@@ -104,7 +95,7 @@ local function parse_args(options)
 	end
 
 	flag_mode = function(item)
-		local left, right = split_at_equal_sign(item)
+		local left, right = txt.split_at_equal_sign(item)
 		return flag_name_mode(left, right)
 	end
 
