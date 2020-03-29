@@ -1,6 +1,7 @@
 local option = require "option"
 local cmd = require "command"
 local errors = require "errors"
+local text = require "text"
 local translations = require "translations"
 
 local _G = _G
@@ -36,8 +37,8 @@ local function parse_commands(global_cmd)
 	local commands = {}
 
 	for _, name in ipairs(names) do
-		local command = _G[name] -- TODO substituir underscores por hífens
-		command.name = name
+		local command = _G[name]
+		command.name = text.underscores_to_hyphens(name)
 		commands[#commands+1] = command
 	end
 
