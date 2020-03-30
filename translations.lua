@@ -22,7 +22,8 @@ local translations = {
 
 		help_options = "[opções]",
 
-		help_with_subcommands = [[%s
+		help_with_subcommands =
+[[%s
 
 Uso:
 
@@ -35,7 +36,8 @@ para obter maiores detalhes sobre um comando específico.
 
 ]],
 
-		help_subcommand_with_options_and_arguments = [[%s
+		help_subcommand_with_options_and_arguments =
+[[%s
 
 Uso:
 %s
@@ -67,7 +69,8 @@ Argumentos:
 
 		help_options = "[options]",
 
-		help_with_subcommands = [[%s
+		help_with_subcommands =
+[[%s
 
 Usage:
 
@@ -80,7 +83,8 @@ to get more details about a specific command.
 
 ]],
 
-		help_subcommand_with_options_and_arguments = [[%s
+		help_subcommand_with_options_and_arguments =
+[[%s
 
 Usage:
 %s

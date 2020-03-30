@@ -347,11 +347,11 @@ Usage:
 
 Options:
     -c, --cutoff <number>
-	    The value above which all numbers are retained
+        The value above which all numbers are retained
 
 Arguments:
     numbers...
-	    The numbers to operate upon
+        The numbers to operate upon
 ]]
 
 		assert.are.same(expected, table.concat(printer.output))

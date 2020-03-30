@@ -1,6 +1,7 @@
 local errors = require "errors"
 local txt = require "text"
 
+local concat = table.concat
 local error = error
 local format = string.format
 local ipairs = ipairs
@@ -78,6 +79,24 @@ function flag(name)
 			end
 		end
 
+		function flg:help()
+			local line = {}
+
+			if #self.short_name > 0 then
+				line[#line+1] = "-" .. self.short_name .. ","
+			end
+
+			if self.name_with_hyphens ~= self.short_name then
+				line[#line+1] = "--" .. self.name_with_hyphens
+			end
+
+			if self.type ~= boolean then
+				line[#line+1] = "<" .. self.type .. ">"
+			end
+
+			return format("    %s\n        %s\n", concat(line, " "), self.description)
+		end
+
 		return flg
 	end
 end
@@ -133,6 +152,16 @@ function positional(name)
 			else
 				self.value = input_number
 			end
+		end
+
+		function pos:help()
+			local line = self.name_with_hyphens
+
+			if self.many then
+				line = line .. "..."
+			end
+
+			return format("    %s\n        \n", line, self.description)
 		end
 
 		return pos

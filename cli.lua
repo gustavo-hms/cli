@@ -59,9 +59,9 @@ local function parse_commands(global_cmd)
 		return translations.help_with_subcommands(self.global.description, table.concat(cmd_text, "\n"), self.global.name)
 	end
 
-	local function exec_line(global_cmd, subcommand)
-		local elements = { global_cmd.name, subcommand.name }
-		local options = cmd.merge_options(global_cmd, subcommand)
+	function parsed:exec_line(subcommand)
+		local elements = { self.global.name, subcommand.name }
+		local options = cmd.merge_options(self.global, subcommand)
 
 		if next(options.flags) then
 			elements[#elements+1] = translations.help_options()
@@ -81,10 +81,29 @@ local function parse_commands(global_cmd)
 	end
 
 	function parsed:help_for(command)
+		local options = cmd.merge_options(self.global, command) -- TODO otimizar uso do merge_options
+		local flags_lines = {}
+
+		for _, flag in ipairs(options.flags) do
+			flags_lines[#flags_lines+1] = flag:help()
+		end
+
+		local positionals_lines = {}
+
+		for _, positional in ipairs(options.positionals) do
+			positionals_lines[#positionals_lines+1] = positional:help()
+		end
+
+		return translations.help_subcommand_with_options_and_arguments(
+			command.description,
+			"    " .. self:exec_line(command),
+			table.concat(flags_lines, "\n"),
+			table.concat(positionals_lines, "\n")
+		)
 	end
 
 	function parsed:inline_help_for(command)
-		local exec = exec_line(self.global, command)
+		local exec = self:exec_line(command)
 		return format("    %s\n        %s\n", exec, command.description)
 	end
 
@@ -108,7 +127,13 @@ local function program_with_commands(global_cmd)
 
 	if help then
 		local cmd_info = parse_commands(global_cmd)
-		print(cmd_info:help())
+
+		if subcommand then
+			print(cmd_info:help_for(subcommand))
+		else
+			print(cmd_info:help())
+		end
+
 		return
 	end
 

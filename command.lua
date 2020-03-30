@@ -338,11 +338,13 @@ function load(global_cmd)
 	local fake_cmd = anonymous { name }
 	parse_args(fake_cmd.options)
 
-	if fake_cmd:help_requested() then
-		return name.value, "help"
-	end
+	local help = fake_cmd:help_requested()
 
 	if not name.value then
+		if help then
+			return nil, true
+		end
+
 		return errors.command_not_provided(command_list())
 	end
 
@@ -351,13 +353,13 @@ function load(global_cmd)
 	-- command's options_table.
 	global_cmd.options = merge_options(fake_cmd, global_cmd)
 
-	local command = _G[name.value]
+	local command = _G[txt.hyphens_to_underscores(name.value)]
 
 	if not is_command(command) then
 		return errors.unknown_command(name.value, command_list())
 	end
 
-	return command
+	return command, help
 end
 
 return _ENV
