@@ -101,6 +101,19 @@ function locale(l)
 	selected = translations[l] or selected
 end
 
+-- The following code block will allow using the `translations` module as a
+-- collection of functions, each one being named after a key in the
+-- `translations` table above.  So, for instance, we will have a
+-- `not_expecting` function with 2 arguments corresponding to each of the "%s"
+-- placeholders inside the translation string. One uses it like this:
+--
+--     local translations = require "translations"
+--
+--     local text = translations.not_expecting("0", "non-zero")
+--
+-- The performance penalties involved in this metaprogramming is mitigated by
+-- the fact that the `translations` module is only used for help and error
+-- messages.
 local meta = {
 	__index = function(_, index)
 		return function(...)
