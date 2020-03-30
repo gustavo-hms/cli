@@ -308,16 +308,25 @@ end
 function merge_options(cmd1, cmd2)
 	local options1 = cmd1.options
 	local options2 = cmd2.options
+	local merged = {}
+
+	for _, v in ipairs(options1.positionals) do
+		merged[#merged + 1] = v
+	end
 
 	for _, v in ipairs(options2.positionals) do
-		options1.positionals[#options1.positionals + 1] = v
+		merged[#merged + 1] = v
 	end
 
-	for k, v in pairs(options2.flags) do
-		options1.flags[k] = v
+	for _, v in pairs(options1.flags) do
+		merged[#merged + 1] = v
 	end
 
-	return options1
+	for _, v in pairs(options2.flags) do
+		merged[#merged + 1] = v
+	end
+
+	return options_table(merged)
 end
 
 function load(global_cmd)
