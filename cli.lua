@@ -59,35 +59,33 @@ local function parse_commands(global_cmd)
 		return translations.help_with_subcommands(self.global.description, table.concat(cmd_text, "\n"), self.global.name)
 	end
 
-	function parsed:inline_help_for(command)
-		-- Does the command have flags?
-		local options = next(command.options.flags) and translations.help_options() or ""
+	local function exec_line(global_cmd, subcommand)
+		local elements = { global_cmd.name, subcommand.name }
+		local options = cmd.merge_options(global_cmd, subcommand)
 
-		local positionals = {}
-
-		local function positional_names(cmd)
-			for _, positional in ipairs(cmd.options.positionals) do
-				local name = positional.name_with_hyphens
-
-				if positional.many then
-					name = name .. "..."
-				end
-
-				positionals[#positionals+1] = name
-			end
+		if next(options.flags) then
+			elements[#elements+1] = translations.help_options()
 		end
 
-		positional_names(self.global)
-		positional_names(command)
+		for _, positional in ipairs(options.positionals) do
+			local name = positional.name_with_hyphens
 
-		return format(
-			"    %s %s%s%s\n        %s\n",
-			self.global.name,
-			command.name,
-			options,
-			#positionals > 0 and " " .. table.concat(positionals, " ") or "",
-			command.description
-		)
+			if positional.many then
+				name = name .. "..."
+			end
+
+			elements[#elements+1] = name
+		end
+
+		return table.concat(elements, " ")
+	end
+
+	function parsed:help_for(command)
+	end
+
+	function parsed:inline_help_for(command)
+		local exec = exec_line(self.global, command)
+		return format("    %s\n        %s\n", exec, command.description)
 	end
 
 	return parsed

@@ -292,7 +292,10 @@ to get more details about a specific command.
 
 	it("should generate a help message for the specified command", function()
 		local errors = require "errors"
-		stub(errors, "exit_with")
+
+		errors.exit_with = function(err)
+			assert.is_nil(tostring(err))
+		end
 
 		local printer = new_printer()
 		_G.print = printer.print
@@ -307,6 +310,24 @@ to get more details about a specific command.
 		package.loaded.cli = nil
 		local cli = require "cli"
 
+		_G.add = cli.command {
+			"Add all the given numbers"
+		}
+
+		_G.max = cli.command {
+			"Find the maximum value"
+		}
+
+		_G.all_above = cli.command {
+			"Print all numbers above the given value",
+
+			cli.flag "c,cutoff" {
+				"The value above which all numbers are retained",
+
+				type = cli.number
+			}
+		}
+
 		cli.program {
 			"A program to compute numbers",
 
@@ -317,8 +338,6 @@ to get more details about a specific command.
 				many = true
 			}
 		}
-
-		assert.stub(errors.exit_with).was_not.called()
 
 		local expected =
 [[Print all numbers above the given value
