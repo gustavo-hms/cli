@@ -20,9 +20,13 @@ local translations = {
 
 		unknown_command = "Erro: o comando “%s” não existe. Os comandos disponíveis são:\n\n%s\n",
 
-		help_description = "Exibe esta mensagem de ajuda",
+		help_has_options = "[opções]",
 
-		help_options = "[opções]",
+		help_options = "Opções:",
+
+		help_usage = "Uso:",
+
+		help_arguments = "Argumentos:",
 
 		help_with_subcommands =
 [[%s
@@ -30,6 +34,7 @@ local translations = {
 Uso:
 
 %s
+
 Você pode rodar
 
     %s <comando> --help
@@ -42,12 +47,15 @@ para obter maiores detalhes sobre um comando específico.
 [[%s
 
 Uso:
+
 %s
 
 Opções:
+
 %s
 
 Argumentos:
+
 %s
 
 ]]
@@ -69,9 +77,13 @@ Argumentos:
 
 		unknown_command = "Error: the command “%s” doesn't exist. Available commands are:\n\n%s\n",
 
-		help_description = "Show this help message",
+		help_has_options = "[options]",
 
-		help_options = "[options]",
+		help_options = "Options:",
+
+		help_usage = "Usage:",
+
+		help_arguments = "Arguments:",
 
 		help_with_subcommands =
 [[%s
@@ -79,6 +91,7 @@ Argumentos:
 Usage:
 
 %s
+
 You can run
 
     %s <command> --help
@@ -91,12 +104,15 @@ to get more details about a specific command.
 [[%s
 
 Usage:
+
 %s
 
 Options:
+
 %s
 
 Arguments:
+
 %s
 
 ]]

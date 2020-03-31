@@ -94,7 +94,7 @@ function flag(name)
 				line[#line+1] = "<" .. self.type .. ">"
 			end
 
-			return format("    %s\n        %s\n", concat(line, " "), self.description)
+			return format("    %s\n        %s", concat(line, " "), self.description)
 		end
 
 		return flg
@@ -161,7 +161,7 @@ function positional(name)
 				line = line .. "..."
 			end
 
-			return format("    %s\n        %s\n", line, self.description)
+			return format("    %s\n        %s", line, self.description)
 		end
 
 		return pos

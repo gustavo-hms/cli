@@ -56,7 +56,11 @@ local function parse_commands(global_cmd)
 			cmd_text[#cmd_text+1] = self:inline_help_for(command)
 		end
 
-		return translations.help_with_subcommands(self.global.description, table.concat(cmd_text, "\n"), self.global.name)
+		return translations.help_with_subcommands(
+			self.global.description,
+			table.concat(cmd_text, "\n\n"),
+			self.global.name
+		)
 	end
 
 	function parsed:exec_line(subcommand)
@@ -64,7 +68,7 @@ local function parse_commands(global_cmd)
 		local merged = self.global:merge_with(subcommand)
 
 		if merged:has_flags() then
-			elements[#elements+1] = translations.help_options()
+			elements[#elements+1] = translations.help_has_options()
 		end
 
 		for positional in merged:positionals() do
@@ -104,7 +108,7 @@ local function parse_commands(global_cmd)
 
 	function parsed:inline_help_for(command)
 		local exec = self:exec_line(command)
-		return format("    %s\n        %s\n", exec, command.description)
+		return format("    %s\n        %s", exec, command.description)
 	end
 
 	return parsed

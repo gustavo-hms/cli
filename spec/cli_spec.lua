@@ -287,7 +287,7 @@ to get more details about a specific command.
 
 ]]
 
-		assert.are.same(expected, table.concat(printer.output))	
+		assert.are.same(expected, table.concat(printer.output))
 	end)
 
 	it("should generate a #help message for the specified command", function()
@@ -345,13 +345,16 @@ to get more details about a specific command.
 [[Print all numbers above the given value
 
 Usage:
+
     compute all-above [options] numbers...
 
 Options:
+
     -c, --cutoff <number>
         The value above which all numbers are retained
 
 Arguments:
+
     numbers...
         The numbers to operate upon
 
