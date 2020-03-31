@@ -258,6 +258,18 @@ local function command_prototype(cmd)
 		return self.options:extract_values()
 	end
 
+	function prototype:has_flags()
+		local length = #self.options.ordered_flags
+
+		if length == 0 then return false end
+
+		if length == 1 then
+			return self.options.ordered_flags[1].name_with_hyphens ~= "help"
+		end
+
+		return true
+	end
+
 	return setmetatable(cmd, { __index = prototype })
 end
 

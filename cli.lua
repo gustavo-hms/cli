@@ -61,13 +61,13 @@ local function parse_commands(global_cmd)
 
 	function parsed:exec_line(subcommand)
 		local elements = { self.global.name, subcommand.name }
-		local options = cmd.merge_options(self.global, subcommand)
+		local merged = self.global:merge_with(subcommand)
 
-		if next(options.flags) then
+		if merged:has_flags() then
 			elements[#elements+1] = translations.help_options()
 		end
 
-		for _, positional in ipairs(options.positionals) do
+		for _, positional in ipairs(merged.options.positionals) do
 			local name = positional.name_with_hyphens
 
 			if positional.many then
