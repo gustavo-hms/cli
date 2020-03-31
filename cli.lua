@@ -84,7 +84,7 @@ local function parse_commands(global_cmd)
 		local options = cmd.merge_options(self.global, command) -- TODO otimizar uso do merge_options
 		local flags_lines = {}
 
-		for _, flag in ipairs(options.flags) do
+		for _, flag in ipairs(options.ordered_flags) do
 			flags_lines[#flags_lines+1] = flag:help()
 		end
 

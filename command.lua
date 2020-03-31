@@ -187,12 +187,17 @@ local function parse_args(options)
 end
 
 local function options_table(cmd)
-	local options = { positionals = {}, flags = {} }
+	local options = { positionals = {}, flags = {}, ordered_flags = {} }
 
 	-- Flags will be stored as key,value pairs. Positional arguments will
 	-- be stored as an array, ordered.
 	for _, argument in ipairs(cmd) do
 		if option.is_flag(argument) then
+			-- Do not add duplicated items
+			if not options.flags[argument.name_with_hyphens] then
+				options.ordered_flags[#options.ordered_flags+1] = argument
+			end
+
 			options.flags[argument.short_name] = argument
 			options.flags[argument.name_with_hyphens] = argument
 
@@ -318,11 +323,11 @@ function merge_options(cmd1, cmd2)
 		merged[#merged + 1] = v
 	end
 
-	for _, v in pairs(options1.flags) do
+	for _, v in ipairs(options1.ordered_flags) do
 		merged[#merged + 1] = v
 	end
 
-	for _, v in pairs(options2.flags) do
+	for _, v in ipairs(options2.ordered_flags) do
 		merged[#merged + 1] = v
 	end
 
