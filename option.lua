@@ -161,7 +161,7 @@ function positional(name)
 				line = line .. "..."
 			end
 
-			return format("    %s\n        \n", line, self.description)
+			return format("    %s\n        %s\n", line, self.description)
 		end
 
 		return pos
