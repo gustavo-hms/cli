@@ -111,19 +111,18 @@ local function parse_commands(global_cmd)
 end
 
 local function program_with_options(program_cmd)
-	local options = program_cmd.options
-	errors.assert(options:parse_args())
+	errors.assert(program_cmd:parse_args())
 
 	if program_cmd:help_requested() then return --[[ TODO ]] end
 
 	if program_cmd.fn then
-		local values = errors.assert(options:extract_values())
+		local values = errors.assert(program_cmd:options_values())
 		program_cmd.fn(values)
 	end
 end
 
 local function program_with_commands(global_cmd)
-	local subcommand, help = errors.assert(cmd.load(global_cmd))
+	local subcommand, help = errors.assert(cmd.load())
 
 	if help then
 		local cmd_info = parse_commands(global_cmd)
@@ -137,10 +136,10 @@ local function program_with_commands(global_cmd)
 		return
 	end
 
-	local options = cmd.merge_options(global_cmd, subcommand)
-	errors.assert(options:parse_args())
+	local merged = global_cmd:merge_with(subcommand)
+	errors.assert(merged:parse_args())
 
-	local values = errors.assert(options:extract_values())
+	local values = errors.assert(merged:options_values())
 
 	if subcommand.fn then
 		if global_cmd.fn then
@@ -152,7 +151,7 @@ local function program_with_commands(global_cmd)
 end
 
 function program(data)
-	local global_cmd = cmd.anonymous(data)
+	local global_cmd = cmd.global_command(data)
 
 	if cmd.has_subcommands() then
 		return program_with_commands(global_cmd)

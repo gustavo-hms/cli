@@ -25,4 +25,8 @@ function underscores_to_hyphens(name)
 	return (name:gsub("_", "-"))
 end
 
+function starts_with_hyphen(txt)
+	return txt:sub(1,1) == "-"
+end
+
 return _ENV

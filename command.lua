@@ -1,34 +1,85 @@
 local errors = require "errors"
 local option = require "option"
-local txt = require "text"
+local text = require "text"
+local translations = require "translations"
 
+local _G = _G
 local arg = arg
-local type = type
+local getmetatable = getmetatable
 local ipairs = ipairs
 local pairs = pairs
 local setmetatable = setmetatable
-local getmetatable = getmetatable
 local table = table
-local _G = _G
+local type = type
 
+local print = print -- TODO
 local _ENV = {}
+
+local function options_table(data)
+	local options = { positionals = {}, flags = {}, ordered_flags = {} }
+
+	function options:add_flag(flag)
+		if not self.flags[flag.name_with_hyphens] then
+			self.ordered_flags[#self.ordered_flags+1] = flag
+			self.flags[flag.short_name] = flag
+			self.flags[flag.name_with_hyphens] = flag
+		end
+	end
+
+	function options:add_positional(positional)
+		self.positionals[#self.positionals + 1] = positional
+	end
+
+	-- Options will be passed to the modules' user as a table whose keys are
+	-- the names of the options with hyphens replaced with underscores, and
+	-- whose values are already filled with the values provided at command line
+	function options:extract_values()
+		local values = {}
+		local errors_holder = errors.holder()
+
+		for _, positional in ipairs(self.positionals) do
+			if not positional.value then
+				errors_holder:add(errors.missing_value(positional.name_with_hyphens))
+			else
+				values[positional.name_with_underscores] = positional.value
+			end
+		end
+
+		for _, flag in pairs(self.flags) do
+			if flag.value == nil then
+				errors_holder:add(errors.missing_value(flag.name_with_hyphens))
+			else
+				values[flag.name_with_underscores] = flag.value
+			end
+		end
+
+		return values, errors_holder:errors()
+	end
+
+	for _, argument in ipairs(data) do
+		if option.is_flag(argument) then
+			options:add_flag(argument)
+
+		elseif option.is_positional(argument) then
+			options:add_positional(argument)
+		end
+	end
+
+	return options
+end
 
 local function command_list()
 	local cmds = {}
 
 	for name, value in pairs(_G) do
 		if is_command(value) then
-			cmds[#cmds + 1] = name
+			cmds[#cmds + 1] = text.underscores_to_hyphens(name)
 		end
 	end
 
 	table.sort(cmds)
 
 	return cmds
-end
-
-local function starts_with_hyphen(text)
-	return text:sub(1,1) == "-"
 end
 
 local function slice(t, first, last)
@@ -72,12 +123,6 @@ local function parse_args(options)
 	local positional_mode, positional_value_mode, unexpected_positional_mode
 	local missing_value_mode, wrong_value_mode
 
-	local help = option.flag "h,help" {
-		"Show the help",
-		type = option.boolean
-	}
-	options.flags.help, options.flags.h = help, help
-
 	local args = arguments()
 	local positionals = slice(options.positionals, 1, #options.positionals)
 	local errors_holder = errors.holder()
@@ -87,7 +132,7 @@ local function parse_args(options)
 
 		if not item then return end
 
-		if starts_with_hyphen(item) then
+		if text.starts_with_hyphen(item) then
 			return flag_mode(item)
 		end
 
@@ -95,7 +140,7 @@ local function parse_args(options)
 	end
 
 	flag_mode = function(item)
-		local left, right = txt.split_at_equal_sign(item)
+		local left, right = text.split_at_equal_sign(item)
 		return flag_name_mode(left, right)
 	end
 
@@ -118,7 +163,7 @@ local function parse_args(options)
 			item = args:next()
 		end
 
-		if item and not starts_with_hyphen(item) then
+		if item and not text.starts_with_hyphen(item) then
 			return set_flag_mode(flag, item)
 		end
 
@@ -149,7 +194,7 @@ local function parse_args(options)
 	positional_value_mode = function(positional, value)
 		if not value then return end
 
-		if positional.many and starts_with_hyphen(value) then
+		if positional.many and text.starts_with_hyphen(value) then
 			positionals = positionals:slice(2, #positionals)
 			return flag_mode(value)
 		end
@@ -186,121 +231,85 @@ local function parse_args(options)
 	return errors_holder:errors()
 end
 
-local function options_table(cmd)
-	local options = { positionals = {}, flags = {}, ordered_flags = {} }
+local function command_prototype(cmd)
+	local prototype = { __command = true }
 
-	-- Flags will be stored as key,value pairs. Positional arguments will
-	-- be stored as an array, ordered.
-	for _, argument in ipairs(cmd) do
-		if option.is_flag(argument) then
-			-- Do not add duplicated items
-			if not options.flags[argument.name_with_hyphens] then
-				options.ordered_flags[#options.ordered_flags+1] = argument
-			end
-
-			options.flags[argument.short_name] = argument
-			options.flags[argument.name_with_hyphens] = argument
-
-		elseif option.is_positional(argument) then
-			options.positionals[#options.positionals + 1] = argument
-		end
+	function prototype:help_requested()
+		return self.options.flags.help and self.options.flags.help.value
 	end
 
-	--[[
-		Options will be passed to the modules' user as a table whose keys are the names
-		of the options with hyphens replaced with underscores, and whose values are already filled with the values provided at command line
-	]]
-	function options:extract_values()
-		local values = {}
-		local errors_holder = errors.holder()
-
-		for _, positional in ipairs(self.positionals) do
-			if not positional.value then
-				errors_holder:add(errors.missing_value(positional.name_with_hyphens))
-			else
-				values[positional.name_with_underscores] = positional.value
-			end
-		end
-
-		for _, flag in pairs(self.flags) do
-			if flag.value == nil then
-				errors_holder:add(errors.missing_value(flag.name_with_hyphens))
-			else
-				values[flag.name_with_underscores] = flag.value
-			end
-		end
-
-		return values, errors_holder:errors()
+	function prototype:parse_args()
+		return parse_args(self.options)
 	end
 
-	function options:parse_args()
-		return parse_args(self)
+	function prototype:merge_with(other_cmd)
+		local options = merge_options(self, other_cmd)
+
+		local merged = {
+			options = options,
+			description = self.description,
+			fn = self.fn
+		}
+
+		return setmetatable(merged, { __index = self })
 	end
 
-	return options
+	function prototype:options_values()
+		return self.options:extract_values()
+	end
+
+	return setmetatable(cmd, { __index = prototype })
 end
 
--- Flag to know whether the program has subcommands
+local function new_command(data)
+	local cmd = {
+		options = options_table(data),
+		description = type(data[1]) == "string" and data[1] or "",
+		fn = type(data[#data]) == "function" and data[#data] or nil
+	}
+
+	return command_prototype(cmd)
+end
+
 local commands_defined = false
 
 function has_subcommands()
     return commands_defined
 end
 
--- A `command` table has this public structure:
--- {
---     options = *an options_table*
--- }
 function command(data)
 	commands_defined = true
 
-	local cmd = {
-		__command = true
-	}
-
-	-- Commands are lazy-loaded. When they are first accessed, the following
-	-- metatable is used, which builds the anonymous command and changes the
-	-- metatable to it.
-	local anon
-	local meta = {
-		__index = function(t, index)
-			if not anon then
-				anon = anonymous(data)
-			end
-
-			return anon[index]
-		end
-	}
-
-	setmetatable(cmd, meta)
-
-	return cmd
+	return new_command(data)
 end
 
-function anonymous(data)
+function global_command(data)
 	local cmd
+	local help_flag = option.flag "h,help" {
+		translations.help_description(),
+		type = option.boolean
+	}
 
 	if type(data) == "string" then
-		cmd = {
-			__command = true,
-
-			options = options_table({}),
-			description = data
-		}
+		cmd = new_command { data, help_flag }
 
 	else
-		cmd = {
-			__command = true,
-
-			options = options_table(data),
-			description = type(data[1]) == "string" and data[1] or "",
-			fn = type(data[#data]) == "function" and data[#data] or nil
-		}
+		table.insert(data, 1, help_flag)
+		cmd = new_command(data)
 	end
 
-	-- Has the user entered a `--help` flag?
-	function cmd:help_requested()
-		return self.options.flags.help and self.options.flags.help.value
+	function cmd:parse_args()
+		if not has_subcommands() then
+			return parse_args(self.options)
+		end
+
+		-- If we have subcommands defined, we need to add a fake first
+		-- positional argument so that the parser can handle the command name
+		-- correctly
+		local command_name = option.positional "Este é o nome do comando" { type = option.string }
+		local fake_options = options_table { command_name }
+		local options = merge_options( { options = fake_options }, self )
+		return parse_args(options)
 	end
 
 	return cmd
@@ -334,13 +343,13 @@ function merge_options(cmd1, cmd2)
 	return options_table(merged)
 end
 
-function load(global_cmd)
+function load()
 	-- We are going to use the `parse_args` function to retrieve the command
 	-- name and, possibly, the `help` flag. To do so, we will define a fake
 	-- command with a sole positional argument corresponding to the command
 	-- name.
-	local name = option.positional "==command-name==" { type = option.string }
-	local fake_cmd = anonymous { name }
+	local name = option.positional "Este é o nome do comando" { type = option.string }
+	local fake_cmd = global_command { name }
 	parse_args(fake_cmd.options)
 
 	local help = fake_cmd:help_requested()
@@ -353,12 +362,7 @@ function load(global_cmd)
 		return errors.command_not_provided(command_list())
 	end
 
-	-- Since we need the command name's positional argument to parse the
-	-- command line arguments correctly, we will insert it in the global
-	-- command's options_table.
-	global_cmd.options = merge_options(fake_cmd, global_cmd)
-
-	local command = _G[txt.hyphens_to_underscores(name.value)]
+	local command = _G[text.hyphens_to_underscores(name.value)]
 
 	if not is_command(command) then
 		return errors.unknown_command(name.value, command_list())

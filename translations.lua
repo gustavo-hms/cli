@@ -20,6 +20,8 @@ local translations = {
 
 		unknown_command = "Erro: o comando “%s” não existe. Os comandos disponíveis são:\n\n%s\n",
 
+		help_description = "Exibe esta mensagem de ajuda",
+
 		help_options = "[opções]",
 
 		help_with_subcommands =
@@ -66,6 +68,8 @@ Argumentos:
 		command_not_provided = "Error: no command given. Available commands are:\n\n%s\n",
 
 		unknown_command = "Error: the command “%s” doesn't exist. Available commands are:\n\n%s\n",
+
+		help_description = "Show this help message",
 
 		help_options = "[options]",
 

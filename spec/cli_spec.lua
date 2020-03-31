@@ -290,15 +290,15 @@ to get more details about a specific command.
 		assert.are.same(expected, table.concat(printer.output))	
 	end)
 
-	it("should generate a help message for the specified command", function()
+	it("should generate a #help message for the specified command", function()
 		local errors = require "errors"
+
+		local printer = new_printer()
+		_G.print = printer.print
 
 		errors.exit_with = function(err)
 			assert.is_nil(tostring(err))
 		end
-
-		local printer = new_printer()
-		_G.print = printer.print
 
 		_G.arg = {
 			[0] = "compute",
@@ -309,6 +309,8 @@ to get more details about a specific command.
 		package.loaded.command = nil
 		package.loaded.cli = nil
 		local cli = require "cli"
+
+		cli.locale "en_US"
 
 		_G.add = cli.command {
 			"Add all the given numbers"

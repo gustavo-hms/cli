@@ -13,7 +13,7 @@ insulate("The #parse_args function", function()
     	local cinco = option.flag "c" { type = option.string }
 		local cmd = command.command { um, dois, tres, quatro, cinco }
 
-		local help, err = cmd.options:parse_args()
+		local help, err = cmd:parse_args()
 
 		assert.is_nil(help)
 		assert.is_nil(err)
@@ -37,7 +37,7 @@ insulate("The #parse_args function", function()
 		local output = option.positional "output" { type = option.string }
 		local cmd = command.command { um, dois, tres, input, output }
 
-		local help, err = cmd.options:parse_args()
+		local help, err = cmd:parse_args()
 
 		assert.is_nil(help)
 		assert.is_nil(err)
@@ -60,7 +60,7 @@ insulate("The #parse_args function", function()
 		local files = option.positional "files" { type = option.string, many = true }
 		local cmd = command.command { um, dois, tres, files }
 
-		local help, err = cmd.options:parse_args()
+		local help, err = cmd:parse_args()
 
 		assert.is_nil(help)
 		assert.is_nil(err)
@@ -82,7 +82,7 @@ insulate("The #parse_args function", function()
 		local cinco = option.flag "c" { type = option.string }
 		local cmd = command.command { um, tres, quatro, cinco }
 
-		local help, err = cmd.options:parse_args()
+		local help, err = cmd:parse_args()
 
 		assert.is_nil(help)
 		assert.is_nil(err)
@@ -105,7 +105,7 @@ insulate("The #parse_args function", function()
 		local cinco = option.positional "cinco" { type = option.string }
 		local cmd = command.command { um, dois, tres, quatro, cinco }
 
-		local help, err = cmd.options:parse_args()
+		local help, err = cmd:parse_args()
 
 		assert.is_nil(help)
 		assert.is_nil(err)
@@ -162,7 +162,7 @@ insulate("The #load function", function()
 			"That"
 		}
 
-		local cmd, help_or_error = command.load(command.anonymous {})
+		local cmd, help_or_error = command.load()
 		assert.is_falsy(help_or_error)
 		assert.is.not_nil(cmd)
 		assert.are.equal("That", cmd.description)
@@ -185,7 +185,7 @@ insulate("The #load function", function()
 			"That"
 		}
 
-		local cmd, help = command.load(command.anonymous {})
+		local cmd, help = command.load()
 		assert.is_nil(cmd)
 		assert.is_true(help)
 	end)
