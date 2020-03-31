@@ -323,7 +323,7 @@ function global_command(data)
 		cmd = new_command { data, help_flag }
 
 	else
-		table.insert(data, 1, help_flag)
+		table.insert(data, 2, help_flag)
 		cmd = new_command(data)
 	end
 
