@@ -67,7 +67,7 @@ local function parse_commands(global_cmd)
 			elements[#elements+1] = translations.help_options()
 		end
 
-		for _, positional in ipairs(merged.options.positionals) do
+		for positional in merged:positionals() do
 			local name = positional.name_with_hyphens
 
 			if positional.many then
@@ -81,16 +81,16 @@ local function parse_commands(global_cmd)
 	end
 
 	function parsed:help_for(command)
-		local options = cmd.merge_options(self.global, command) -- TODO otimizar uso do merge_options
+		local merged = self.global:merge_with(command) -- TODO otimizar uso do merge
 		local flags_lines = {}
 
-		for _, flag in ipairs(options.ordered_flags) do
+		for flag in merged:flags() do
 			flags_lines[#flags_lines+1] = flag:help()
 		end
 
 		local positionals_lines = {}
 
-		for _, positional in ipairs(options.positionals) do
+		for positional in merged:positionals() do
 			positionals_lines[#positionals_lines+1] = positional:help()
 		end
 

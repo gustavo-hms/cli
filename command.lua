@@ -5,6 +5,7 @@ local translations = require "translations"
 
 local _G = _G
 local arg = arg
+local coroutine = coroutine
 local getmetatable = getmetatable
 local ipairs = ipairs
 local pairs = pairs
@@ -268,6 +269,22 @@ local function command_prototype(cmd)
 		end
 
 		return true
+	end
+
+	function prototype:flags()
+		return coroutine.wrap(function()
+			for _, flag in ipairs(self.options.ordered_flags) do
+				coroutine.yield(flag)
+			end
+		end)
+	end
+
+	function prototype:positionals()
+		return coroutine.wrap(function()
+			for _, positional in ipairs(self.options.positionals) do
+				coroutine.yield(positional)
+			end
+		end)
 	end
 
 	return setmetatable(cmd, { __index = prototype })
