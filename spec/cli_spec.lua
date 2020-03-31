@@ -354,6 +354,7 @@ Options:
 Arguments:
     numbers...
         The numbers to operate upon
+
 ]]
 
 		assert.are.same(expected, table.concat(printer.output))

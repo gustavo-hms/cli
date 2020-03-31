@@ -260,15 +260,7 @@ local function command_prototype(cmd)
 	end
 
 	function prototype:has_flags()
-		local length = #self.options.ordered_flags
-
-		if length == 0 then return false end
-
-		if length == 1 then
-			return self.options.ordered_flags[1].name_with_hyphens ~= "help"
-		end
-
-		return true
+		return #self.options.ordered_flags > 0
 	end
 
 	function prototype:flags()
@@ -314,16 +306,10 @@ end
 
 function global_command(data)
 	local cmd
-	local help_flag = option.flag "h,help" {
-		translations.help_description(),
-		type = option.boolean
-	}
-
 	if type(data) == "string" then
-		cmd = new_command { data, help_flag }
+		cmd = new_command { data }
 
 	else
-		table.insert(data, 2, help_flag)
 		cmd = new_command(data)
 	end
 
@@ -378,7 +364,8 @@ function load()
 	-- command with a sole positional argument corresponding to the command
 	-- name.
 	local name = option.positional "Este é o nome do comando" { type = option.string }
-	local fake_cmd = global_command { name }
+	local help_flag = option.flag "h,help" { type = option.boolean }
+	local fake_cmd = global_command { name, help_flag }
 	parse_args(fake_cmd.options)
 
 	local help = fake_cmd:help_requested()
