@@ -28,35 +28,12 @@ local translations = {
 
 		help_arguments = "Argumentos:",
 
-		help_with_subcommands =
-[[%s
-
-Uso:
-
-%s
-
-Você pode rodar
+		help_command_help_tip =
+[[Você pode executar
 
     %s <comando> --help
 
 para obter maiores detalhes sobre um comando específico.
-
-]],
-
-		help_subcommand_with_options_and_arguments =
-[[%s
-
-Uso:
-
-%s
-
-Opções:
-
-%s
-
-Argumentos:
-
-%s
 
 ]]
 	},
@@ -85,35 +62,12 @@ Argumentos:
 
 		help_arguments = "Arguments:",
 
-		help_with_subcommands =
-[[%s
-
-Usage:
-
-%s
-
-You can run
+		help_command_help_tip =
+[[You can run
 
     %s <command> --help
 
 to get more details about a specific command.
-
-]],
-
-		help_subcommand_with_options_and_arguments =
-[[%s
-
-Usage:
-
-%s
-
-Options:
-
-%s
-
-Arguments:
-
-%s
 
 ]]
 	}

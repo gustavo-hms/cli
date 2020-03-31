@@ -70,7 +70,6 @@ describe("The #flag function", function()
 			description = "Outra flag",
 			type = option.number,
 			value = 17,
-			short_name = "p",
 			name_with_hyphens = "p",
 			name_with_underscores = "p"
 		}

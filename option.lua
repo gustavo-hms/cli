@@ -40,7 +40,10 @@ function flag(name)
 		end
 
 		local short, long = txt.split_at_comma(name)
-		long = long or short
+
+		if not long then
+			long, short = short, nil
+		end
 
 		local flg = {
 			__flag = true,
@@ -82,13 +85,11 @@ function flag(name)
 		function flg:help()
 			local line = {}
 
-			if #self.short_name > 0 then
+			if self.short_name then
 				line[#line+1] = "-" .. self.short_name .. ","
 			end
 
-			if self.name_with_hyphens ~= self.short_name then
-				line[#line+1] = "--" .. self.name_with_hyphens
-			end
+			line[#line+1] = "--" .. self.name_with_hyphens
 
 			if self.type ~= boolean then
 				line[#line+1] = "<" .. self.type .. ">"

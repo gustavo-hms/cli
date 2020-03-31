@@ -218,6 +218,92 @@ insulate("A #program", function()
 
 	it("should generate a help message from the spec", function()
 		local errors = require "errors"
+		errors.exit_with = function(err)
+			assert.is_nil(tostring(err))
+		end
+
+		local printer = new_printer()
+		_G.print = printer.print
+
+		_G.arg = {
+			[0] = "program",
+			[1] = "--help"
+		}
+
+		package.loaded.command = nil
+		package.loaded.cli = nil
+		local cli = require "cli"
+
+		cli.locale "en_US"
+
+		cli.program {
+			"A program to test help messages",
+
+			cli.flag "first" {
+				"The first option",
+				type = cli.number
+			},
+
+			cli.flag "s,second" {
+				"The second option",
+				type = cli.string
+			},
+
+			cli.flag "third" {
+				"Just another option",
+				type = cli.boolean
+			},
+
+			cli.positional "fourth" {
+				"A positional argument",
+				type = cli.number
+			}
+		}
+
+		local expected =
+[[A program to test help messages
+
+Usage:
+
+    program [options] fourth
+
+Options:
+
+    --first <number>
+        The first option
+
+    -s, --second <string>
+        The second option
+
+    --third
+        Just another option
+
+Arguments:
+
+    fourth
+        A positional argument
+
+]]
+
+		assert.are.same(expected, table.concat(printer.output))
+	end)
+end)
+
+insulate("A #program with subcommands", function()
+	local new_printer = function()
+		local printer = {
+			output = {},
+		}
+
+		printer.print = function(str)
+			printer.output[#printer.output + 1] = str
+		end
+
+		return printer
+	end
+
+	it("should generate a help message from the spec", function()
+		local errors = require "errors"
 		stub(errors, "exit_with")
 
 		local printer = new_printer()

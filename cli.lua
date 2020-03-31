@@ -1,17 +1,10 @@
-local option = require "option"
 local cmd = require "command"
 local errors = require "errors"
-local text = require "text"
+local info = require "info"
+local option = require "option"
 local translations = require "translations"
 
-local _G = _G
-local arg = arg
-local format = string.format
-local ipairs = ipairs
-local next = next
-local pairs = pairs
 local print = print
-local table = table
 
 local _ENV = {}
 
@@ -24,100 +17,14 @@ string = option.string
 command = cmd.command
 locale = translations.locale
 
-local function parse_commands(global_cmd)
-	local names = {}
-
-	for name, value in pairs(_G) do
-		if cmd.is_command(value) then
-			names[#names+1] = name
-		end
-	end
-
-	table.sort(names)
-	local commands = {}
-
-	for _, name in ipairs(names) do
-		local command = _G[name]
-		command.name = text.underscores_to_hyphens(name)
-		commands[#commands+1] = command
-	end
-
-	global_cmd.name = arg[0]
-
-	local parsed = {
-		global = global_cmd,
-		subcommands = commands
-	}
-
-	function parsed:help()
-		local cmd_text = {}
-
-		for _, command in ipairs(self.subcommands) do
-			cmd_text[#cmd_text+1] = self:inline_help_for(command)
-		end
-
-		return translations.help_with_subcommands(
-			self.global.description,
-			table.concat(cmd_text, "\n\n"),
-			self.global.name
-		)
-	end
-
-	function parsed:exec_line(subcommand)
-		local elements = { self.global.name, subcommand.name }
-		local merged = self.global:merge_with(subcommand)
-
-		if merged:has_flags() then
-			elements[#elements+1] = translations.help_has_options()
-		end
-
-		for positional in merged:positionals() do
-			local name = positional.name_with_hyphens
-
-			if positional.many then
-				name = name .. "..."
-			end
-
-			elements[#elements+1] = name
-		end
-
-		return table.concat(elements, " ")
-	end
-
-	function parsed:help_for(command)
-		local merged = self.global:merge_with(command) -- TODO otimizar uso do merge
-		local flags_lines = {}
-
-		for flag in merged:flags() do
-			flags_lines[#flags_lines+1] = flag:help()
-		end
-
-		local positionals_lines = {}
-
-		for positional in merged:positionals() do
-			positionals_lines[#positionals_lines+1] = positional:help()
-		end
-
-		return translations.help_subcommand_with_options_and_arguments(
-			command.description,
-			"    " .. self:exec_line(command),
-			table.concat(flags_lines, "\n"),
-			table.concat(positionals_lines, "\n")
-		)
-	end
-
-	function parsed:inline_help_for(command)
-		local exec = self:exec_line(command)
-		return format("    %s\n        %s", exec, command.description)
-	end
-
-	return parsed
-end
-
 local function program_with_options(program_cmd)
 	errors.assert(program_cmd:parse_args())
 
-	if program_cmd:help_requested() then return --[[ TODO ]] end
+	if program_cmd:help_requested() then
+		local program_info = info.new(program_cmd)
+		print(program_info:help())
+		return
+	end
 
 	if program_cmd.fn then
 		local values = errors.assert(program_cmd:options_values())
@@ -129,12 +36,12 @@ local function program_with_commands(global_cmd)
 	local subcommand, help = errors.assert(cmd.load())
 
 	if help then
-		local cmd_info = parse_commands(global_cmd)
+		local program_info = info.new_with_commands(global_cmd)
 
 		if subcommand then
-			print(cmd_info:help_for(subcommand))
+			print(program_info:help_for(subcommand))
 		else
-			print(cmd_info:help())
+			print(program_info:help())
 		end
 
 		return

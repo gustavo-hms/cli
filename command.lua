@@ -1,7 +1,6 @@
 local errors = require "errors"
 local option = require "option"
 local text = require "text"
-local translations = require "translations"
 
 local _G = _G
 local arg = arg
@@ -12,8 +11,8 @@ local pairs = pairs
 local setmetatable = setmetatable
 local table = table
 local type = type
+local string = string
 
-local print = print -- TODO
 local _ENV = {}
 
 local function options_table(data)
@@ -22,8 +21,11 @@ local function options_table(data)
 	function options:add_flag(flag)
 		if not self.flags[flag.name_with_hyphens] then
 			self.ordered_flags[#self.ordered_flags+1] = flag
-			self.flags[flag.short_name] = flag
 			self.flags[flag.name_with_hyphens] = flag
+
+			if flag.short_name then
+				self.flags[flag.short_name] = flag
+			end
 		end
 	end
 
@@ -123,6 +125,10 @@ local function parse_args(options)
 	local flag_mode, flag_name_mode, flag_value_mode, unexpected_flag_mode, set_flag_mode
 	local positional_mode, positional_value_mode, unexpected_positional_mode
 	local missing_value_mode, wrong_value_mode
+
+	-- We will insert a `help` flag automatically
+	local help = option.flag "h,help" { type = option.boolean }
+	options:add_flag(help)
 
 	local args = arguments()
 	local positionals = slice(options.positionals, 1, #options.positionals)
@@ -248,7 +254,8 @@ local function command_prototype(cmd)
 
 		local merged = {
 			options = options,
-			description = self.description,
+			description = other_cmd.description,
+			name = string.format("%s %s", self.name, other_cmd.name),
 			fn = self.fn
 		}
 
@@ -261,6 +268,10 @@ local function command_prototype(cmd)
 
 	function prototype:has_flags()
 		return #self.options.ordered_flags > 0
+	end
+
+	function prototype:has_positionals()
+		return #self.options.positionals > 0
 	end
 
 	function prototype:flags()
@@ -364,8 +375,7 @@ function load()
 	-- command with a sole positional argument corresponding to the command
 	-- name.
 	local name = option.positional "Este é o nome do comando" { type = option.string }
-	local help_flag = option.flag "h,help" { type = option.boolean }
-	local fake_cmd = global_command { name, help_flag }
+	local fake_cmd = global_command { name }
 	parse_args(fake_cmd.options)
 
 	local help = fake_cmd:help_requested()
