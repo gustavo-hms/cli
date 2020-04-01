@@ -1,7 +1,7 @@
 local cmd = require "command"
 local errors = require "errors"
 local info = require "info"
-local option = require "option"
+local options = require "options"
 local translations = require "translations"
 
 local print = print
@@ -9,11 +9,11 @@ local print = print
 local _ENV = {}
 
 -- Re-exports
-flag = option.flag
-positional = option.positional
-boolean = option.boolean
-number = option.number
-string = option.string
+flag = options.flag
+positional = options.positional
+boolean = options.boolean
+number = options.number
+string = options.string
 command = cmd.command
 locale = translations.locale
 

@@ -4,6 +4,14 @@ local _ENV = {}
 
 local translations = {
 	pt_BR = {
+		panic_flag_type_mismatch = "O tipo da opção “%s” é número, mas seu valor padrão (%s) não é um número",
+
+		panic_not_a_table = "O argumento posicional “%s” está configurado para receber múltiplos valores, mas seu valor padrão (%s) não é uma tabela",
+
+		panic_positional_type_mismatch = "O tipo do argumento “%s” é número, mas o seu valor padrão (%s) não é um número",
+
+		panic_positional_type_mismatch_some = "O tipo do argumento “%s” é número, mas algum de seus valores padrão (a saber: “%s”) não é um número",
+
 		holder = "Foram encontrados erros na execução do programa.",
 
 		not_expecting = "O valor “%s” foi passado para a opção “%s”, que não espera receber nenhum valor.",
@@ -38,6 +46,14 @@ para obter maiores detalhes sobre um comando específico.
 ]]
 	},
 	en_US = {
+		panic_flag_type_mismatch = "The type of the option “%s” is number, but its default value (%s) is not a number",
+
+		panic_not_a_table = "Positional argument “%s” is set to receive multiple values, but its default value (%s) is not a table",
+
+		panic_positional_type_mismatch = "The type of the argument “%s” is a number, but its default value (%s) is not a number",
+
+		panic_positional_type_mismatch_some = "The type of the argument “%s” is a number, but one of its default values (namely: “%s”) is not a number",
+
 		holder = "Errors were found in the program execution.",
 
 		not_expecting = "The value “%s” was passed to the option “%s”, which doesn't expect any value.",

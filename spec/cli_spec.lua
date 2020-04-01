@@ -1,9 +1,11 @@
 insulate("A #program", function()
 	local errors = require "errors"
-	stub(errors, "exit_with")
 
-	it("should fill the options' values", function()
+	it("should #fill the options' values", function()
 		_G.arg = {"--value", "17"}
+		errors.exit_with = function(err)
+			assert.is_nil(tostring(err))
+		end
 		local cli = require "cli"
 
 		cli.program {
@@ -16,13 +18,15 @@ insulate("A #program", function()
 				assert.are.equal(17, options.value)
 			end
 		}
-
-		assert.stub(errors.exit_with).was_not.called()
 	end)
 
 	it("should fill the options' values when passed with a short name", function()
 		_G.arg = {"-v", "19"}
+		errors.exit_with = function(err)
+			assert.is_nil(tostring(err))
+		end
 		package.loaded.cli = nil
+		package.loaded.parser = nil
 		package.loaded.command = nil
 		local cli = require "cli"
 
@@ -36,8 +40,28 @@ insulate("A #program", function()
 				assert.are.equal(19, options.value)
 			end
 		}
+	end)
 
-		assert.stub(errors.exit_with).was_not.called()
+	it("should accept a flag with just a short variant", function()
+		_G.arg = {"-v", "19"}
+		errors.exit_with = function(err)
+			assert.is_nil(tostring(err))
+		end
+		package.loaded.cli = nil
+		package.loaded.parser = nil
+		package.loaded.command = nil
+		local cli = require "cli"
+
+		cli.program {
+			cli.flag "v" {
+				"A mandatory flag",
+				type = cli.number
+			},
+
+			function(options)
+				assert.are.equal(19, options.v)
+			end
+		}
 	end)
 end)
 
@@ -66,7 +90,7 @@ insulate("A #program", function()
 				default = "filled"
 			},
 
-			function(options)
+			function()
 			end
 		}
 
@@ -216,7 +240,7 @@ insulate("A #program", function()
 		return printer
 	end
 
-	it("should generate a help message from the spec", function()
+	it("should generate a #help message from the spec", function()
 		local errors = require "errors"
 		errors.exit_with = function(err)
 			assert.is_nil(tostring(err))
@@ -230,6 +254,7 @@ insulate("A #program", function()
 			[1] = "--help"
 		}
 
+		package.loaded.parser = nil
 		package.loaded.command = nil
 		package.loaded.cli = nil
 		local cli = require "cli"
@@ -249,7 +274,7 @@ insulate("A #program", function()
 				type = cli.string
 			},
 
-			cli.flag "third" {
+			cli.flag "t" {
 				"Just another option",
 				type = cli.boolean
 			},
@@ -275,7 +300,7 @@ Options:
     -s, --second <string>
         The second option
 
-    --third
+    -t
         Just another option
 
 Arguments:
@@ -302,7 +327,7 @@ insulate("A #program with subcommands", function()
 		return printer
 	end
 
-	it("should generate a help message from the spec", function()
+	it("should generate a #help message from the spec", function()
 		local errors = require "errors"
 		stub(errors, "exit_with")
 
@@ -314,6 +339,7 @@ insulate("A #program with subcommands", function()
 			[1] = "--help"
 		}
 
+		package.loaded.parser = nil
 		package.loaded.command = nil
 		package.loaded.cli = nil
 		local cli = require "cli"
@@ -392,6 +418,7 @@ to get more details about a specific command.
 			[2] = "--help"
 		}
 
+		package.loaded.parser = nil
 		package.loaded.command = nil
 		package.loaded.cli = nil
 		local cli = require "cli"
@@ -461,6 +488,7 @@ Arguments:
 			[1] = "--help"
 		}
 
+		package.loaded.parser = nil
 		package.loaded.command = nil
 		package.loaded.cli = nil
 		local cli = require "cli"
@@ -510,6 +538,6 @@ You can run
 to get more details about a specific command.
 
 ]]
-		assert.are.same(expected, table.concat(printer.output))	
+		assert.are.same(expected, table.concat(printer.output))
 	end)
 end)

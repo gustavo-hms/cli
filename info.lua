@@ -37,7 +37,7 @@ function program:help()
 		txt[#txt+1] = translations.help_options()
 
 		for flag in cmd:flags() do
-			if flag.name_with_hyphens ~= "help" then
+			if flag.names[#flag.names] ~= "help" then
 				txt[#txt+1] = flag:help()
 			end
 		end
@@ -66,7 +66,7 @@ function program:usage()
 
 	for positional in cmd:positionals() do
 		local many = positional.many and "..." or ""
-		usage[#usage+1] = positional.name_with_hyphens .. many
+		usage[#usage+1] = positional.name .. many
 	end
 
 	return table.concat(usage, " ")

@@ -1,15 +1,21 @@
 local tr = require "translations"
 
+local error = error
 local exit = os.exit
 local ipairs = ipairs
 local pairs = pairs
 local setmetatable = setmetatable
 local stderr = io.stderr
+local string = string
 local table = table
 local tostring = tostring
 local type = type
 
 local _ENV = {}
+
+function panic(message, ...)
+	error(string.format(message, ...), 3)
+end
 
 local function write(err)
 	stderr:write(tostring(err))

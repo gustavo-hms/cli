@@ -1,4 +1,4 @@
-local option = require "option"
+local options = require "options"
 
 insulate("The #parse_args function", function()
 	it("should set all the flags", function()
@@ -6,11 +6,11 @@ insulate("The #parse_args function", function()
 
 		local command = require "command"
 
-    	local um = option.flag "um" { type = option.number }
-    	local dois = option.flag "d,dois" { type = option.string }
-    	local tres = option.flag "tres" { type = option.boolean }
-    	local quatro = option.flag "q,quatro" { type = option.number }
-    	local cinco = option.flag "c" { type = option.string }
+    	local um = options.flag "um" { type = options.number }
+    	local dois = options.flag "d,dois" { type = options.string }
+    	local tres = options.flag "tres" { type = options.boolean }
+    	local quatro = options.flag "q,quatro" { type = options.number }
+    	local cinco = options.flag "c" { type = options.string }
 		local cmd = command.command { um, dois, tres, quatro, cinco }
 
 		local help, err = cmd:parse_args()
@@ -26,15 +26,16 @@ insulate("The #parse_args function", function()
 
 	it("should set the flags and the positional arguments", function()
 		_G.arg = { "--um", "=", "1", "--dois=doze", "entrada", "saida", "--tres" }
+		package.loaded.parser = nil
 		package.loaded.command = nil
 
 		local command = require "command"
 
-		local um = option.flag "um" { type = option.number }
-		local dois = option.flag "d,dois" { type = option.string }
-		local tres = option.flag "tres" { type = option.boolean }
-		local input = option.positional "input" { type = option.string }
-		local output = option.positional "output" { type = option.string }
+		local um = options.flag "um" { type = options.number }
+		local dois = options.flag "d,dois" { type = options.string }
+		local tres = options.flag "tres" { type = options.boolean }
+		local input = options.positional "input" { type = options.string }
+		local output = options.positional "output" { type = options.string }
 		local cmd = command.command { um, dois, tres, input, output }
 
 		local help, err = cmd:parse_args()
@@ -50,14 +51,15 @@ insulate("The #parse_args function", function()
 
 	it("should set #many values for a positional argument", function()
 		_G.arg = { "--um", "=", "1", "--dois=doze", "doc1", "doc2", "doc3", "--tres" }
+		package.loaded.parser = nil
 		package.loaded.command = nil
 
 		local command = require "command"
 
-		local um = option.flag "um" { type = option.number }
-		local dois = option.flag "d,dois" { type = option.string }
-		local tres = option.flag "tres" { type = option.boolean }
-		local files = option.positional "files" { type = option.string, many = true }
+		local um = options.flag "um" { type = options.number }
+		local dois = options.flag "d,dois" { type = options.string }
+		local tres = options.flag "tres" { type = options.boolean }
+		local files = options.positional "files" { type = options.string, many = true }
 		local cmd = command.command { um, dois, tres, files }
 
 		local help, err = cmd:parse_args()
@@ -72,14 +74,15 @@ insulate("The #parse_args function", function()
 
 	it("should parses successfully a misbehaved input", function()
 		_G.arg = { "--um", "=", "", "--tres", "-q=", "4", "-c=cinco" }
+		package.loaded.parser = nil
 		package.loaded.command = nil
 
 		local command = require "command"
 
-		local um = option.flag "um" { type = option.string }
-		local tres = option.flag "tres" { type = option.boolean }
-		local quatro = option.flag "q,quatro" { type = option.number }
-		local cinco = option.flag "c" { type = option.string }
+		local um = options.flag "um" { type = options.string }
+		local tres = options.flag "tres" { type = options.boolean }
+		local quatro = options.flag "q,quatro" { type = options.number }
+		local cinco = options.flag "c" { type = options.string }
 		local cmd = command.command { um, tres, quatro, cinco }
 
 		local help, err = cmd:parse_args()
@@ -94,15 +97,16 @@ insulate("The #parse_args function", function()
 
 	it("should detect a positional argument following a boolean flag", function()
 		_G.arg = { "--um", "=", "1", "--dois=doze", "--tres", "-q", "quinto" }
+		package.loaded.parser = nil
 		package.loaded.command = nil
 
 		local command = require "command"
 
-		local um = option.flag "um" { type = option.number }
-		local dois = option.flag "d,dois" { type = option.string }
-		local tres = option.flag "tres" { type = option.boolean }
-		local quatro = option.flag "q,quatro" { type = option.boolean }
-		local cinco = option.positional "cinco" { type = option.string }
+		local um = options.flag "um" { type = options.number }
+		local dois = options.flag "d,dois" { type = options.string }
+		local tres = options.flag "tres" { type = options.boolean }
+		local quatro = options.flag "q,quatro" { type = options.boolean }
+		local cinco = options.positional "cinco" { type = options.string }
 		local cmd = command.command { um, dois, tres, quatro, cinco }
 
 		local help, err = cmd:parse_args()
@@ -124,33 +128,34 @@ describe("The #command function", function()
 		local cmd = command.command {
 			"A description",
 
-			option.flag "f,first" {
+			options.flag "f,first" {
 				"The first flag",
 
-				type = option.string,
+				type = options.string,
 				default = "the first"
 			},
 
-			option.positional "second" {
+			options.positional "second" {
 				"The positional option",
 
-				type = option.number,
+				type = options.number,
 				default = 17
 			}
 		}
 
-		local options = cmd.options
+		local opts = cmd.options
 
-		assert.is.not_nil(options)
-		assert.is.not_nil(options.flags.first)
-		assert.is.not_nil(options.flags.f)
-		assert.are.equal(1, #options.positionals)
+		assert.is.not_nil(opts)
+		assert.is.not_nil(opts.named_flags.first)
+		assert.is.not_nil(opts.named_flags.f)
+		assert.are.equal(1, #opts.ordered_positionals)
 	end)
 end)
 
 insulate("The #load function", function()
 	it("should find the correct command", function()
 		_G.arg = {"that", "--aflag", "=", "1"}
+		package.loaded.parser = nil
 		package.loaded.command = nil
 		local command = require "command"
 
@@ -168,16 +173,17 @@ insulate("The #load function", function()
 		assert.are.equal("That", cmd.description)
 	end)
 
-	it("should detect a global `help` flag", function()
+	it("should #detect a #global `help` flag", function()
 		_G.arg = {"--help"}
+		package.loaded.parser = nil
 		package.loaded.command = nil
 		local command = require "command"
 
 		_G.this = command.command {
 			"This",
 
-			option.flag "a-flag" {
-				type = option.string
+			options.flag "a-flag" {
+				type = options.string
 			}
 		}
 
