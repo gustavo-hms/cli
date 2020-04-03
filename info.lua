@@ -1,13 +1,12 @@
 -- Information about the program's command line interface
 
 local command = require "command"
+local iter = require "iterators"
 local text = require "text"
 local translations = require "translations"
 
 local _G = _G
 local arg = arg
-local ipairs = ipairs
-local pairs = pairs
 local setmetatable = setmetatable
 local string = string
 local table = table
@@ -36,7 +35,7 @@ function program:help()
 	if cmd:has_flags() then
 		txt[#txt+1] = translations.help_options()
 
-		for flag in cmd:flags() do
+		for flag in cmd:flags():each() do
 			if flag.names[#flag.names] ~= "help" then
 				txt[#txt+1] = flag:help()
 			end
@@ -46,7 +45,7 @@ function program:help()
 	if cmd:has_positionals() then
 		txt[#txt+1] = translations.help_arguments()
 
-		for positional in cmd:positionals() do
+		for positional in cmd:positionals():each() do
 			txt[#txt+1] = positional:help()
 		end
 	end
@@ -58,18 +57,13 @@ end
 
 function program:usage()
 	local cmd = self.command
-	local usage = { cmd.name }
 
-	if cmd:has_flags() then
-		usage[#usage+1] = translations.help_has_options()
-	end
+	local name = iter.once(cmd.name)
+	local help_has_options = iter.once(cmd:has_flags() and translations.help_has_options() or nil)
+	local positionals =
+		cmd:positionals():map(function(pos) return pos.many and pos.name .. "..." or pos.name end)
 
-	for positional in cmd:positionals() do
-		local many = positional.many and "..." or ""
-		usage[#usage+1] = positional.name .. many
-	end
-
-	return table.concat(usage, " ")
+	return iter.chain(name, help_has_options, positionals):concat(" ")
 end
 
 function program:inline_help()
@@ -80,23 +74,16 @@ end
 local program_with_commands = {}
 
 function new_with_commands(global_cmd)
-	global_cmd.name = global_cmd.name or arg[0]
-	local names = {}
+	local names = iter.pairs(_G)
+		:filter(function(_,v) return command.is_command(v) end)
+		:sort()
 
-	for name, value in pairs(_G) do
-		if command.is_command(value) then
-			names[#names+1] = name
-		end
-	end
-
-	table.sort(names)
-	local commands = {}
-
-	for _, name in ipairs(names) do
+	local command_with_name = function(name)
 		local cmd = _G[name]
 		cmd.name = text.underscores_to_hyphens(name)
-		commands[#commands+1] = cmd
+		return cmd
 	end
+	local commands = iter.sequence(names):map(command_with_name):array()
 
 	global_cmd.name = arg[0]
 
@@ -122,15 +109,11 @@ function program_with_commands:help()
 end
 
 function program_with_commands:usage()
-	local usages = {}
-
-	for _, cmd in ipairs(self.subcommands) do
-		local merged = self.global:merge_with(cmd)
-		local prog = new(merged)
-		usages[#usages+1] = prog:inline_help()
-	end
-
-	return table.concat(usages, "\n\n")
+	return iter.sequence(self.subcommands)
+		:map(function(cmd) return self.global:merge_with(cmd) end)
+		:map(function(merged) return new(merged) end)
+		:map(function(prog) return prog:inline_help() end)
+		:concat("\n\n")
 end
 
 function program_with_commands:help_for(cmd)

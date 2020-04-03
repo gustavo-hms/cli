@@ -103,7 +103,7 @@ insulate("A #complete #program", function()
 		local errors = require "errors"
 		-- Mock errors.exit_with
 		errors.exit_with = function(err)
-			print(err)
+			print(tostring(err))
 			assert.is_false(true) -- `exit_with` shouldn't be called
 		end
 

@@ -1,47 +1,11 @@
 local errors = require "errors"
+local iter = require "iterators"
 local options = require "options"
 local text = require "text"
 
 local arg = arg
-local getmetatable = getmetatable
-local setmetatable = setmetatable
 
 local _ENV = {}
-
-local function slice(t, first, last)
-	if not last or last > #t then last = #t end
-
-	if first > last then return { slice = slice } end
-
-	local old = getmetatable(t)
-
-	if old then
-		first, last = first + old.first - 1, last + old.first - 1
-		t = old.array
-	end
-
-	local meta = {
-		first = first,
-		last = last,
-		array = t,
-		__index = function(_, i) return t[first + i - 1] end,
-		__len = function() return last - first + 1 end
-	}
-
-	return setmetatable({ slice = slice }, meta)
-end
-
-local function arguments()
-	local args = { elements = slice(arg, 1, #arg) }
-
-	function args:next()
-		local elem = self.elements[1]
-		self.elements = self.elements:slice(2, #self.elements)
-		return elem
-	end
-
-	return args
-end
 
 -- State machine to parse command line arguments
 function parse(opts)
@@ -53,8 +17,8 @@ function parse(opts)
 	local help = options.flag "h,help" { type = options.boolean }
 	opts:add_flag(help)
 
-	local args = arguments()
-	local positionals = slice(opts.ordered_positionals, 1, #opts.ordered_positionals)
+	local args = iter.sequence(arg)
+	local positionals = iter.sequence(opts.ordered_positionals)
 	local errors_holder = errors.holder()
 
 	local new_arg_mode = function()
@@ -114,7 +78,7 @@ function parse(opts)
 	end
 
 	positional_mode = function(value)
-		local positional = positionals[1]
+		local positional = positionals:next()
 
 		if not positional then return unexpected_positional_mode(value) end
 
@@ -125,7 +89,6 @@ function parse(opts)
 		if not value then return end
 
 		if positional.many and text.starts_with_hyphen(value) then
-			positionals = positionals:slice(2, #positionals)
 			return flag_mode(value)
 		end
 
@@ -138,7 +101,6 @@ function parse(opts)
 			return positional_value_mode(positional, value)
 		end
 
-		positionals = positionals:slice(2, #positionals)
 		return new_arg_mode()
 	end
 

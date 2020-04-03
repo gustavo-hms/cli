@@ -1,3 +1,4 @@
+local iter = require "iterators"
 local tr = require "translations"
 
 local error = error
@@ -38,13 +39,7 @@ function assert(...)
 end
 
 local function show_list(list)
-	local text = {}
-
-	for _, command in ipairs(list) do
-		text[#text + 1] = "    * " .. command .. "\n"
-	end
-
-	return table.concat(text)
+	return iter.sequence(list):map(function(cmd) return string.format("    * %s\n", cmd) end):concat()
 end
 
 local function new(code, ...)

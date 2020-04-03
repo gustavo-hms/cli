@@ -1,13 +1,12 @@
 local errors = require "errors"
+local iter = require "iterators"
 local options = require "options"
 local parser = require "parser"
 local text = require "text"
 
 local _G = _G
-local pairs = pairs
 local setmetatable = setmetatable
 local string = string
-local table = table
 local type = type
 
 local _ENV = {}
@@ -113,17 +112,10 @@ function global_command(data)
 end
 
 local function command_list()
-	local cmds = {}
-
-	for name, value in pairs(_G) do
-		if is_command(value) then
-			cmds[#cmds + 1] = text.underscores_to_hyphens(name)
-		end
-	end
-
-	table.sort(cmds)
-
-	return cmds
+	return iter.pairs(_G)
+		:filter(function(_,v) return is_command(v) end)
+		:map(function(name) return text.underscores_to_hyphens(name) end)
+		:sort()
 end
 
 function load()

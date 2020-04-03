@@ -1,8 +1,8 @@
 local errors = require "errors"
+local iter = require "iterators"
 local text = require "text"
 local translations = require "translations"
 
-local coroutine = coroutine
 local format = string.format
 local ipairs = ipairs
 local setmetatable = setmetatable
@@ -52,24 +52,17 @@ function flag_prototype:name_with_underscores()
 end
 
 function flag_prototype:names_formated()
-	local names = {}
-
-	for i, name in ipairs(self.names) do
-		if #name == 1 then
-			names[i] = "-" .. name
-		else
-			names[i] = "--" .. name
-		end
-	end
-
-	return table.concat(names, ", ")
+	return
+		iter.sequence(self.names)
+			:map(function(name) return #name == 1 and "-" .. name or "--" .. name end)
+			:concat(", ")
 end
 
 function flag_prototype:help()
 	local line = { self:names_formated() }
 
 	if self.type ~= boolean then
-		line[#line+1] = format("<%s>", self.type)
+		line[2] = format("<%s>", self.type)
 	end
 
 	return format("    %s\n        %s", table.concat(line, " "), self.description)
@@ -199,26 +192,18 @@ function options_prototype:add_positional(pos)
 end
 
 function options_prototype:positionals()
-	return coroutine.wrap(function()
-		for _, positional in ipairs(self.ordered_positionals) do
-			coroutine.yield(positional)
-		end
-	end)
+	return iter.sequence(self.ordered_positionals)
 end
 
 function options_prototype:flags()
-	return coroutine.wrap(function()
-		for _, flag in ipairs(self.ordered_flags) do
-			coroutine.yield(flag)
-		end
-	end)
+	return iter.sequence(self.ordered_flags)
 end
 
 function options_prototype:values()
 	local values = {}
 	local holder = errors.holder()
 
-	for pos in self:positionals() do
+	for pos in self:positionals():each() do
 		if pos.value == nil then
 			holder:add(errors.missing_value(pos.name))
 		else
@@ -226,7 +211,7 @@ function options_prototype:values()
 		end
 	end
 
-	for flg in self:flags() do
+	for flg in self:flags():each() do
 		if flg.value == nil then
 			holder:add(errors.missing_value(flg.names[#flg.names]))
 		else
@@ -238,24 +223,7 @@ function options_prototype:values()
 end
 
 function options_prototype:merge_with(other)
-	local merged = {}
-
-	for positional in self:positionals() do
-		merged[#merged+1] = positional
-	end
-
-	for positional in other:positionals() do
-		merged[#merged+1] = positional
-	end
-
-	for flag in self:flags() do
-		merged[#merged+1] = flag
-	end
-
-	for flag in other:flags() do
-		merged[#merged+1] = flag
-	end
-
+	local merged = iter.chain(self:positionals(), other:positionals(), self:flags(), other:flags()):array()
 	return new(merged)
 end
 
