@@ -35,7 +35,7 @@ function program:help()
 	if cmd:has_flags() then
 		txt[#txt+1] = translations.help_options()
 
-		for flag in cmd:flags():each() do
+		for flag in cmd:flags() do
 			if flag.names[#flag.names] ~= "help" then
 				txt[#txt+1] = flag:help()
 			end
@@ -45,7 +45,7 @@ function program:help()
 	if cmd:has_positionals() then
 		txt[#txt+1] = translations.help_arguments()
 
-		for positional in cmd:positionals():each() do
+		for positional in cmd:positionals() do
 			txt[#txt+1] = positional:help()
 		end
 	end

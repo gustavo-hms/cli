@@ -203,7 +203,7 @@ function options_prototype:values()
 	local values = {}
 	local holder = errors.holder()
 
-	for pos in self:positionals():each() do
+	for pos in self:positionals() do
 		if pos.value == nil then
 			holder:add(errors.missing_value(pos.name))
 		else
@@ -211,7 +211,7 @@ function options_prototype:values()
 		end
 	end
 
-	for flg in self:flags():each() do
+	for flg in self:flags() do
 		if flg.value == nil then
 			holder:add(errors.missing_value(flg.names[#flg.names]))
 		else

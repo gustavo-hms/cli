@@ -9,6 +9,10 @@ local _ENV = {}
 local metatable = {}
 metatable.__index = metatable
 
+function metatable:__call()
+	return self:next()
+end
+
 function wrap(generator)
 	return function(...)
 		local next_, invariant, control = generator(...)
@@ -28,10 +32,6 @@ end
 function new(next_)
 	local iterator = { next = next_ }
 	return setmetatable(iterator, metatable)
-end
-
-function metatable:each()
-	return function() return self:next() end
 end
 
 function metatable:map(fn)

@@ -51,12 +51,12 @@ describe("The #array method", function()
 	end)
 end)
 
-describe("The #each method", function()
+describe("The #__call method", function()
 	it("should convert an iterator to a standard iterator", function()
 		local array = {9, 6, 3, 1}
 		local i = 0
 
-		for v in iter.sequence(array):each() do
+		for v in iter.sequence(array) do
 			i = i + 1
 			assert.are.same(array[i], v)
 		end
@@ -72,7 +72,7 @@ describe("The #map method", function()
 
 	it("should change the arity of the iterators", function()
 		local t = {um = 9, dois = 6, tres = 3, quatro = 1}
-		for k,v in iter.pairs(t):map(function(k, _) return k end):each() do
+		for k,v in iter.pairs(t):map(function(k, _) return k end) do
 			assert.is_nil(v)
 			assert.is.not_nil(t[k])
 		end
