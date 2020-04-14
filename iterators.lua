@@ -1,6 +1,5 @@
 local global_ipairs = ipairs
 local table = table
-local next = next
 local global_pairs = pairs
 local setmetatable = setmetatable
 
