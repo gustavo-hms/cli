@@ -541,3 +541,108 @@ to get more details about a specific command.
 		assert.are.same(expected, table.concat(printer.output))
 	end)
 end)
+
+insulate("A #program, when finding an #error", function()
+	local errors = require "errors"
+	local cli = require "cli"
+
+	local scenarios = {
+		{
+			description = "should deal with an #unknown_arg",
+			program = { cli.flag "a-flag" { default = "" } },
+			arg = { "--other-flag" },
+			commands = {},
+			error_code = "unknown_arg",
+			expected = errors.unknown_arg("other-flag"),
+		},
+		{
+			description = "should deal with an #unknown_arg when executing a subcommand",
+			program = { cli.flag "a-flag" { default = "" } },
+			arg = { "--other-flag" },
+			commands = {
+				subcommand = { cli.flag "second" { default = "" } }
+			},
+			error_code = "unknown_arg",
+			expected = errors.unknown_arg("other-flag"),
+		},
+		{
+			description = "should deal with a #not_expecting",
+			program = {cli.flag "booleano" { type = cli.boolean }},
+			arg = { "--booleano=algo" },
+			commands = {},
+			error_code = "not_expecting",
+			expected = errors.not_expecting("booleano", "algo"),
+		},
+		{
+			description = "should deal with a #missing_value",
+			program = {cli.flag "a-flag" {}},
+			arg = {},
+			commands = {},
+			error_code = "missing_value",
+			expected = errors.missing_value("a-flag"),
+		},
+		{
+			description = "should deal with a #missing_value even if flag's name appears on execution",
+			program = {cli.flag "a-flag" {}},
+			arg = { "--a-flag" },
+			commands = {},
+			error_code = "missing_value",
+			expected = errors.missing_value("a-flag"),
+		},
+		{
+			description = "should deal with a #missing_value when executing a subcommand",
+			program = {cli.flag "a-flag" { default = "" }},
+			arg = { "subcommand" },
+			commands = {
+				subcommand = { cli.flag "second" {} }
+			},
+			error_code = "missing_value",
+			expected = errors.missing_value("second"),
+		},
+		{
+			description = "should deal with a #not_a_number",
+			program = {cli.flag "a-flag" { type = cli.number }},
+			arg = {"--a-flag","=","dezessete"},
+			commands = {},
+			error_code = "not_a_number",
+			expected = errors.not_a_number("a-flag", "dezessete"),
+		},
+		{
+			description = "should deal with a #not_a_number when executing a subcommand",
+			program = {cli.flag "a-flag" { default = "" }},
+			arg = { "subcommand", "--second", "dezessete" },
+			commands = {
+				subcommand = { cli.flag "second" { type = cli.number } }
+			},
+			error_code = "not_a_number",
+			expected = errors.not_a_number("second", "dezessete"),
+		},
+	}
+
+	for _, scenario in ipairs(scenarios) do
+		insulate("on arguments,", function()
+			it(scenario.description, function()
+				errors.exit_with = function(err)
+					err = err.error_with_code(scenario.error_code)
+					assert.are.same(scenario.expected, err)
+				end
+
+				local exit_with = spy.new(errors.exit_with)
+
+				_G.arg = scenario.arg
+				package.loaded.parser = nil
+				package.loaded.command = nil
+				package.loaded.cli = nil
+				cli = require "cli"
+
+				for name, command in pairs(scenario.commands) do
+					_G[name] = cli.command(command)
+				end
+
+				cli.program(scenario.program)
+
+				assert.spy(exit_with).was.called()
+			end)
+		end)
+	end
+end)
