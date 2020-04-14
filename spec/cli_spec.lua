@@ -617,6 +617,32 @@ insulate("A #program, when finding an #error", function()
 			error_code = "not_a_number",
 			expected = errors.not_a_number("second", "dezessete"),
 		},
+		{
+			description = "should deal with an #unexpected_positional",
+			program = {cli.flag "a-flag" { default = "" }},
+			arg = {"dezessete"},
+			commands = {},
+			error_code = "unexpected_positional",
+			expected = errors.unexpected_positional("dezessete"),
+		},
+		{
+			description = "should deal with an #unexpected_positional if the positional is already set",
+			program = { cli.positional "nome" {} },
+			arg = { "primeiro", "dezessete" },
+			commands = {},
+			error_code = "unexpected_positional",
+			expected = errors.unexpected_positional("dezessete"),
+		},
+		{
+			description = "should deal with an #unexpected_positional when executing a subcommand",
+			program = { cli.flag "primeira" { default = "" } },
+			arg = { "subcommand", "dezessete" },
+			commands = {
+				subcommand = { cli.flag "nome" { default = "" } }
+			},
+			error_code = "unexpected_positional",
+			expected = errors.unexpected_positional("dezessete"),
+		},
 	}
 
 	for _, scenario in ipairs(scenarios) do
