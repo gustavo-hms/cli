@@ -73,7 +73,7 @@ function parse(opts)
 	end
 
 	unexpected_flag_mode = function(name)
-		errors_holder:add(errors.unknown_arg(name))
+		errors_holder:add(errors.unknown_arg(text.add_initial_hyphens(name)))
 		return new_arg_mode()
 	end
 
@@ -105,7 +105,7 @@ function parse(opts)
 	end
 
 	missing_value_mode = function(arg)
-		errors_holder:add(errors.missing_value(arg.name_with_hyphens))
+		errors_holder:add(errors.missing_value(arg:name_with_hyphens()))
 		return new_arg_mode()
 	end
 

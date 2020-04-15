@@ -19,7 +19,7 @@ string = "string"
 local flag_prototype = { __flag = true }
 
 function flag_prototype:set(value)
-	local name = self.names[#self.names]
+	local name = self:name_with_hyphens()
 
 	if self.type == boolean then
 		if value then
@@ -38,7 +38,7 @@ function flag_prototype:set(value)
 		self.value = tonumber(value)
 
 		if not self.value then
-			return errors.not_a_number(self.name_with_hyphens, value)
+			return errors.not_a_number(name, value)
 		end
 
 		return
@@ -51,11 +51,13 @@ function flag_prototype:name_with_underscores()
 	return text.hyphens_to_underscores(self.names[#self.names])
 end
 
+function flag_prototype:name_with_hyphens()
+	local name = self.names[#self.names]
+	return text.add_initial_hyphens(name)
+end
+
 function flag_prototype:names_formated()
-	return
-		iter.sequence(self.names)
-			:map(function(name) return #name == 1 and "-" .. name or "--" .. name end)
-			:concat(", ")
+	return iter.sequence(self.names):map(text.add_initial_hyphens):concat(", ")
 end
 
 function flag_prototype:help()
@@ -112,7 +114,7 @@ function positional_prototype:add(value)
 		input_number = tonumber(value)
 
 		if not input_number then
-			return errors.not_a_number(self.name_with_hyphens, value)
+			return errors.not_a_number(self.name, value)
 		end
 	end
 
@@ -126,6 +128,10 @@ end
 
 function positional_prototype:name_with_underscores()
 	return text.hyphens_to_underscores(self.name)
+end
+
+function positional_prototype:name_with_hyphens()
+	return self.name
 end
 
 function positional_prototype:help()
@@ -213,7 +219,7 @@ function options_prototype:values()
 
 	for flg in self:flags() do
 		if flg.value == nil then
-			holder:add(errors.missing_value(flg.names[#flg.names]))
+			holder:add(errors.missing_value(flg:name_with_hyphens()))
 		else
 			values[flg:name_with_underscores()] = flg.value
 		end

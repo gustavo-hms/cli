@@ -29,4 +29,8 @@ function starts_with_hyphen(txt)
 	return txt:sub(1,1) == "-"
 end
 
+function add_initial_hyphens(name)
+	return #name == 1 and "-" .. name or "--" .. name
+end
+
 return _ENV
