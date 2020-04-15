@@ -70,7 +70,7 @@ insulate("A #program", function()
 		local errors = require "errors"
 
 		errors.exit_with = function(err)
-			local expected = errors.missing_value("mandatory")
+			local expected = errors.missing_value("--mandatory")
 			assert.are.same(expected, err.error_with_code("missing_value"))
 		end
 
@@ -553,17 +553,17 @@ insulate("A #program, when finding an #error", function()
 			arg = { "--other-flag" },
 			commands = {},
 			error_code = "unknown_arg",
-			expected = errors.unknown_arg("other-flag"),
+			expected = errors.unknown_arg("--other-flag"),
 		},
 		{
 			description = "should deal with an #unknown_arg when executing a subcommand",
 			program = { cli.flag "a-flag" { default = "" } },
-			arg = { "--other-flag" },
+			arg = {  "subcommand", "--another-flag" },
 			commands = {
 				subcommand = { cli.flag "second" { default = "" } }
 			},
 			error_code = "unknown_arg",
-			expected = errors.unknown_arg("other-flag"),
+			expected = errors.unknown_arg("--another-flag"),
 		},
 		{
 			description = "should deal with a #not_expecting",
@@ -571,7 +571,7 @@ insulate("A #program, when finding an #error", function()
 			arg = { "--booleano=algo" },
 			commands = {},
 			error_code = "not_expecting",
-			expected = errors.not_expecting("booleano", "algo"),
+			expected = errors.not_expecting("--booleano", "algo"),
 		},
 		{
 			description = "should deal with a #missing_value",
@@ -579,7 +579,7 @@ insulate("A #program, when finding an #error", function()
 			arg = {},
 			commands = {},
 			error_code = "missing_value",
-			expected = errors.missing_value("a-flag"),
+			expected = errors.missing_value("--a-flag"),
 		},
 		{
 			description = "should deal with a #missing_value even if flag's name appears on execution",
@@ -587,7 +587,7 @@ insulate("A #program, when finding an #error", function()
 			arg = { "--a-flag" },
 			commands = {},
 			error_code = "missing_value",
-			expected = errors.missing_value("a-flag"),
+			expected = errors.missing_value("--a-flag"),
 		},
 		{
 			description = "should deal with a #missing_value when executing a subcommand",
@@ -597,7 +597,7 @@ insulate("A #program, when finding an #error", function()
 				subcommand = { cli.flag "second" {} }
 			},
 			error_code = "missing_value",
-			expected = errors.missing_value("second"),
+			expected = errors.missing_value("--second"),
 		},
 		{
 			description = "should deal with a #not_a_number",
@@ -605,17 +605,17 @@ insulate("A #program, when finding an #error", function()
 			arg = {"--a-flag","=","dezessete"},
 			commands = {},
 			error_code = "not_a_number",
-			expected = errors.not_a_number("a-flag", "dezessete"),
+			expected = errors.not_a_number("--a-flag", "dezessete"),
 		},
 		{
 			description = "should deal with a #not_a_number when executing a subcommand",
 			program = {cli.flag "a-flag" { default = "" }},
-			arg = { "subcommand", "--second", "dezessete" },
+			arg = { "subcommand", "--a-number", "dezessete" },
 			commands = {
-				subcommand = { cli.flag "second" { type = cli.number } }
+				subcommand = { cli.flag "a-number" { type = cli.number } }
 			},
 			error_code = "not_a_number",
-			expected = errors.not_a_number("second", "dezessete"),
+			expected = errors.not_a_number("--a-number", "dezessete"),
 		},
 		{
 			description = "should deal with an #unexpected_positional",
@@ -649,11 +649,13 @@ insulate("A #program, when finding an #error", function()
 		insulate("on arguments,", function()
 			it(scenario.description, function()
 				errors.exit_with = function(err)
-					err = err.error_with_code(scenario.error_code)
-					assert.are.same(scenario.expected, err)
-				end
+					local found = err.error_with_code(scenario.error_code)
 
-				local exit_with = spy.new(errors.exit_with)
+					if found == nil then print(err) end
+
+					assert.are.same(scenario.expected, found)
+					error("Terminate execution")
+				end
 
 				_G.arg = scenario.arg
 				package.loaded.parser = nil
@@ -665,9 +667,7 @@ insulate("A #program, when finding an #error", function()
 					_G[name] = cli.command(command)
 				end
 
-				cli.program(scenario.program)
-
-				assert.spy(exit_with).was.called()
+				assert.has_error(function() cli.program(scenario.program) end, "Terminate execution")
 			end)
 		end)
 	end

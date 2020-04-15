@@ -1,1 +1,6 @@
 .luacheckrc
+.lua-format
+examples/
+teste.lua
+commands-and-options.lua
+.vscode
