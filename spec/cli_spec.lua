@@ -65,39 +65,6 @@ insulate("A #program", function()
 	end)
 end)
 
-insulate("A #program", function()
-	it("should complain if a #mandatory option is missing", function()
-		local errors = require "errors"
-
-		errors.exit_with = function(err)
-			local expected = errors.missing_value("--mandatory")
-			assert.are.same(expected, err.error_with_code("missing_value"))
-		end
-
-		local spy_exit_with = spy.on(errors, "exit_with")
-
-		_G.arg = {"--optional", "a-value"}
-
-		local cli = require "cli"
-
-		cli.program {
-			cli.flag "mandatory" {
-				"A mandatory flag"
-			},
-
-			cli.flag "optional" {
-				"An optional flag",
-				default = "filled"
-			},
-
-			function()
-			end
-		}
-
-		assert.spy(spy_exit_with).was.called()
-	end)
-end)
-
 insulate("A #complete #program", function()
 	it("should run the `#add` command", function()
 		local errors = require "errors"
@@ -542,7 +509,7 @@ to get more details about a specific command.
 	end)
 end)
 
-insulate("A #program, when finding an #error", function()
+describe("A #program, when finding an #error", function()
 	local errors = require "errors"
 	local cli = require "cli"
 
@@ -646,13 +613,33 @@ insulate("A #program, when finding an #error", function()
 			error_code = "unexpected_positional",
 			expected = errors.unexpected_positional("dezessete"),
 		},
+		{
+			description = "should deal with a #command_not_provided",
+			program = { cli.flag "primeira" { default = "" } },
+			arg = { "--primeira=valor" },
+			commands = {
+				subcommand = { cli.flag "nome" { default = "" } }
+			},
+			error_code = "command_not_provided",
+			expected = errors.command_not_provided({"subcommand"}),
+		},
+		{
+			description = "should deal with an #unknown_command",
+			program = { cli.flag "primeira" { default = "" } },
+			arg = {  "comando", "--primeira=valor" },
+			commands = {
+				subcommand = { cli.flag "nome" { default = "" } }
+			},
+			error_code = "unknown_command",
+			expected = errors.unknown_command("comando", {"subcommand"}),
+		},
 	}
 
 	for _, scenario in ipairs(scenarios) do
 		insulate("on arguments,", function()
 			it(scenario.description, function()
 				errors.exit_with = function(err)
-					local found = err.error_with_code(scenario.error_code)
+					local found = err:error_with_code(scenario.error_code)
 
 					if found == nil then print(err) end
 

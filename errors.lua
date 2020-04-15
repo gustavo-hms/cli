@@ -42,6 +42,12 @@ local function show_list(list)
 	return iter.sequence(list):map(function(cmd) return string.format("    * %s\n", cmd) end):concat()
 end
 
+local protoerror = {}
+
+function protoerror:error_with_code(code)
+	if self.code == code then return self end
+end
+
 local function new(code, ...)
 	local extra_args = {...}
 	local err = {
@@ -53,7 +59,9 @@ local function new(code, ...)
 	local meta = {
 		__tostring = function()
 			return tr[code](table.unpack(extra_args))
-    	end
+    	end,
+
+		__index = protoerror,
 	}
 
 	return setmetatable(err, meta)
@@ -114,7 +122,7 @@ function holder()
 
 			-- Check if it contains some error with the provided code and
 			-- returns it. Used for tests
-			error_with_code = function(code)
+			error_with_code = function(_, code)
 				return h.errs[code] and h.errs[code][1]
 			end
 		}
