@@ -574,12 +574,15 @@ insulate("A #program, when finding an #error", function()
 			expected = errors.not_expecting("--booleano", "algo"),
 		},
 		{
-			description = "should deal with a #missing_value",
-			program = {cli.flag "a-flag" {}},
+			description = "should deal with a #missing_value for an #empty_arg",
+			program = {
+				cli.flag "empty-flag" {},
+				function() end
+			},
 			arg = {},
 			commands = {},
 			error_code = "missing_value",
-			expected = errors.missing_value("--a-flag"),
+			expected = errors.missing_value("--empty-flag"),
 		},
 		{
 			description = "should deal with a #missing_value even if flag's name appears on execution",
