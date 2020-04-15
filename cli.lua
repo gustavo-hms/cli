@@ -17,7 +17,7 @@ string = options.string
 command = cmd.command
 locale = translations.locale
 
-local function program_with_options(program_cmd)
+local function simple_program(program_cmd)
 	errors.assert(program_cmd:parse_args())
 
 	if program_cmd:help_requested() then
@@ -68,7 +68,7 @@ function program(data)
 		return program_with_commands(global_cmd)
 	end
 
-	return program_with_options(global_cmd)
+	return simple_program(global_cmd)
 end
 
 return _ENV
