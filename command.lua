@@ -114,7 +114,7 @@ end
 local function command_list()
 	return iter.pairs(_G)
 		:filter(function(_,v) return is_command(v) end)
-		:map(function(name) return text.underscores_to_hyphens(name) end)
+		:map(text.underscores_to_hyphens)
 		:sort()
 end
 
