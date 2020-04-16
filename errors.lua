@@ -42,9 +42,9 @@ local function show_list(list)
 	return iter.sequence(list):map(function(cmd) return string.format("    * %s\n", cmd) end):concat()
 end
 
-local protoerror = {}
+local error_prototype = {}
 
-function protoerror:error_with_code(code)
+function error_prototype:error_with_code(code)
 	if self.code == code then return self end
 end
 
@@ -61,7 +61,7 @@ local function new(code, ...)
 			return tr[code](table.unpack(extra_args))
     	end,
 
-		__index = protoerror,
+		__index = error_prototype,
 	}
 
 	return setmetatable(err, meta)
