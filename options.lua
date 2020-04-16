@@ -206,11 +206,11 @@ end
 
 function options_prototype:values()
 	local values = {}
-	local holder = errors.holder()
+	local error_list = errors.list()
 
 	for pos in self:positionals() do
 		if pos.value == nil then
-			holder:add(errors.missing_value(pos.name))
+			error_list:add(errors.missing_value(pos.name))
 		else
 			values[pos:name_with_underscores()] = pos.value
 		end
@@ -218,13 +218,13 @@ function options_prototype:values()
 
 	for flg in self:flags() do
 		if flg.value == nil then
-			holder:add(errors.missing_value(flg:name_with_hyphens()))
+			error_list:add(errors.missing_value(flg:name_with_hyphens()))
 		else
 			values[flg:name_with_underscores()] = flg.value
 		end
 	end
 
-	return values, holder:errors()
+	return values, error_list:errors()
 end
 
 function options_prototype:merge_with(other)
