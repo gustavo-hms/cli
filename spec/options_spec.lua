@@ -229,3 +229,49 @@ describe("The #positional #add method", function()
 		assert.are.equal("três", positional.value)
 	end)
 end)
+
+local translations = require "translations"
+
+describe("An #option should #panic", function()
+	it("with a #flag type mismatch", function()
+		local flag = function()
+			options.flag "a-flag" {
+				type = options.number,
+				default = "treze",
+			}
+		end
+		assert.has_error(flag, translations.panic_flag_type_mismatch("a-flag", "treze"))
+	end)
+
+	it("with a #positional default that is not a table", function()
+		local positional = function()
+			options.positional "posicional" {
+				type = options.number,
+				default = 17,
+				many = true,
+			}
+		end
+		assert.has_error(positional, translations.panic_not_a_table("posicional", 17))
+	end)
+
+	it("with a #positional type mismatch", function()
+		local positional = function()
+			options.positional "posicional" {
+				type = options.number,
+				default = "treze",
+			}
+		end
+		assert.has_error(positional, translations.panic_positional_type_mismatch("posicional", "treze"))
+	end)
+
+	it("with a #positional type mismatch in one of its default values", function()
+		local positional = function()
+			options.positional "posicional" {
+				type = options.number,
+				default = {17, 19, "vinte", 13},
+				many = true,
+			}
+		end
+		assert.has_error(positional, translations.panic_positional_type_mismatch_some("posicional", "vinte"))
+	end)
+end)
