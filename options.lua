@@ -52,8 +52,7 @@ function flag_prototype:name_with_underscores()
 end
 
 function flag_prototype:name_with_hyphens()
-	local name = self.names[#self.names]
-	return text.add_initial_hyphens(name)
+	return text.add_initial_hyphens(self.names[#self.names])
 end
 
 function flag_prototype:names_formated()
