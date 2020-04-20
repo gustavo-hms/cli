@@ -2,7 +2,7 @@ local iter = require "iterators"
 local tr = require "translations"
 
 local arg = arg
-local error = error
+local panic_with_error = error
 local exit = os.exit
 local ipairs = ipairs
 local pairs = pairs
@@ -16,7 +16,7 @@ local type = type
 local _ENV = {}
 
 function panic(message, ...)
-	error(string.format(message, ...), 3)
+	panic_with_error(string.format(message, ...), 3)
 end
 
 local function write(err)
@@ -26,6 +26,10 @@ end
 function exit_with(err)
 	write(err)
 	exit(101)
+end
+
+local function is_error(t)
+	return type(t) == "table" and t.__error
 end
 
 function assert(...)
@@ -39,66 +43,64 @@ function assert(...)
 	return ...
 end
 
+-- This module defines an `error` interface, containing the following fields:
+--
+--     - __error: signaling this is an error type; used for introspection;
+--
+--     - __tostring: all errors can be printed;
+--
+--     - error_with_code(<a code>): a debug function that returns an `error`
+--       value in one of the following cases:
+--
+--         * if the method's receiver is an error with the specified code; in
+--           this case, the method returns `self`;
+--
+--         * if the method's receiver holds an error with the specified code
+--           (used for the `validation_error` type).
+--
+-- The module has 3 types implementing this interface:
+--
+--     - `error`;
+--     - `validation_error`;
+--     - `validation_item`.
+
+
 local function show_list(list)
 	return iter.sequence(list):map(function(cmd) return string.format("    - %s\n", cmd) end):concat()
 end
 
-local error_prototype = {}
+local error = { __error = true }
+error.__index = error
 
-function error_prototype:error_with_code(code)
+function error:error_with_code(code)
 	if self.code == code then return self end
 end
 
-local function new_validation_item(code, ...)
-	local extra_args = {...}
-	local err = {
-		__error = true,
-		code = code,
-		extra_info = extra_args
-	}
-
-	local meta = {
-		__tostring = function()
-			return tr[code](table.unpack(extra_args))
-    	end,
-
-		__index = error_prototype,
-	}
-
-	return setmetatable(err, meta)
+function error:__tostring()
+	local message = tr[self.code](table.unpack(self.extra_info))
+	if self.tip then message = string.format("%s\n%s", message, tr.tip(arg[0])) end
+	return message
 end
 
-local function new_with_tip(code, ...)
-	local extra_args = {...}
-	local err = {
-		__error = true,
-		code = code,
-		extra_info = extra_args
-	}
-
-	local meta = {
-		__tostring = function()
-			return tr[code](table.unpack(extra_args)) .. tr.tip(arg[0])
-    	end,
-
-		__index = error_prototype,
-	}
-
-	return setmetatable(err, meta)
-end
-
-function is_error(t)
-	return type(t) == "table" and t.__error
+local function new_error(code, ...)
+	local err = { code = code, extra_info = {...}, tip = true }
+	return setmetatable(err, error)
 end
 
 function command_not_provided(available_commands)
 	local commands = show_list(available_commands)
-	return new_with_tip("command_not_provided", commands)
+	return new_error("command_not_provided", commands)
 end
 
 function unknown_command(name, available_commands)
 	local commands = show_list(available_commands)
-	return new_with_tip("unknown_command", name, commands)
+	return new_error("unknown_command", name, commands)
+end
+
+
+local function new_validation_item(code, ...)
+	local err = { code = code, extra_info = {...} }
+	return setmetatable(err, error)
 end
 
 function unknown_arg(name)
@@ -121,10 +123,11 @@ function unexpected_positional(value)
 	return new_validation_item("unexpected_positional", value)
 end
 
-local validation_prototype = { __error = true }
-validation_prototype.__index = validation_prototype
 
-function validation_prototype:__tostring()
+local validation_error = { __error = true }
+validation_error.__index = validation_error
+
+function validation_error:__tostring()
 	local messages = { tr.holder() }
 
 	for _, error_list in pairs(self.errors) do
@@ -138,14 +141,15 @@ function validation_prototype:__tostring()
 	return table.concat(messages, "\n")
 end
 
-function validation_prototype:error_with_code(code)
+function validation_error:error_with_code(code)
 	return self.errors[code] and self.errors[code][1]
 end
 
-local function new_validation(items)
+local function new_validation_error(items)
 	local t = { errors = items }
-	return setmetatable(t, validation_prototype)
+	return setmetatable(t, validation_error)
 end
+
 
 local list_prototype = {}
 list_prototype.__index = list_prototype
@@ -157,17 +161,13 @@ function list_prototype:add(err)
 	self.errs[err.code] = list
 end
 
-function list_prototype:errors()
+function list_prototype:toerror()
 	if self.empty then return end
-	return new_validation(self.errs)
+	return new_validation_error(self.errs)
 end
 
 function list()
-	local v = {
-		empty = true,
-		errs = {}
-	}
-
+	local v = { empty = true, errs = {} }
 	return setmetatable(v, list_prototype)
 end
 

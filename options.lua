@@ -224,7 +224,7 @@ function options_prototype:values()
 		end
 	end
 
-	return values, error_list:errors()
+	return values, error_list:toerror()
 end
 
 function options_prototype:merge_with(other)

@@ -120,7 +120,7 @@ function parse(opts)
 	end
 
 	new_arg_mode()
-	return error_list:errors()
+	return error_list:toerror()
 end
 
 return _ENV
