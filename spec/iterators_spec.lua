@@ -83,6 +83,36 @@ describe("The #map method", function()
 	end)
 end)
 
+describe("The #flatmap method", function()
+	it("should flatten a nested structure", function()
+		local t = { pares = {12, 16, 4}, impares = {15, 21, 17} }
+
+		local result = iter.pairs(t):flatmap(function(k,v) return iter.sequence(v) end):array()
+
+		if result[1] == 12 then
+			assert.are.same({12, 16, 4, 15, 21, 17}, result)
+		elseif result[1] == 15 then
+			assert.are.same({15, 21, 17, 12, 16, 4}, result)
+		else
+			assert.is_true(false)
+		end
+	end)
+end)
+
+describe("The #find method", function()
+	it("should return the first found element", function()
+		local t = {23, 7, 13, 20, 11, 15, 12}
+		local result = iter.sequence(t):find(function(e) return e%2 == 0 end)
+		assert.are.equal(20, result)
+	end)
+
+	it("should return nil if no element were found", function()
+		local t = {23, 7, 13, 11, 15, 17}
+		local result = iter.sequence(t):find(function(e) return e%2 == 0 end)
+		assert.is_nil(result)
+	end)
+end)
+
 describe("The #sort method", function()
 	it("should generate a sorted array", function()
 		local t = {9, 6, 3, 1, 7}

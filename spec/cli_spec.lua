@@ -509,7 +509,7 @@ to get more details about a specific command.
 	end)
 end)
 
-describe("A #program, when finding an #error", function()
+describe("A #program, when finding a #validation #error", function()
 	local errors = require "errors"
 	local cli = require "cli"
 
@@ -613,6 +613,41 @@ describe("A #program, when finding an #error", function()
 			error_code = "unexpected_positional",
 			expected = errors.unexpected_positional("dezessete"),
 		},
+	}
+
+	for _, scenario in ipairs(scenarios) do
+		insulate("on arguments,", function()
+			it(scenario.description, function()
+				errors.exit_with = function(err)
+					local found = err:message_with_code(scenario.error_code)
+
+					if found == nil then print(err) end
+
+					assert.are.same(scenario.expected, found)
+					error("Terminate execution")
+				end
+
+				_G.arg = scenario.arg
+				package.loaded.parser = nil
+				package.loaded.command = nil
+				package.loaded.cli = nil
+				cli = require "cli"
+
+				for name, command in pairs(scenario.commands) do
+					_G[name] = cli.command(command)
+				end
+
+				assert.has_error(function() cli.program(scenario.program) end, "Terminate execution")
+			end)
+		end)
+	end
+end)
+
+describe("A #program, when finding a #command #error", function()
+	local errors = require "errors"
+	local cli = require "cli"
+
+	local scenarios = {
 		{
 			description = "should deal with a #command_not_provided",
 			program = { cli.flag "primeira" { default = "" } },
@@ -639,11 +674,7 @@ describe("A #program, when finding an #error", function()
 		insulate("on arguments,", function()
 			it(scenario.description, function()
 				errors.exit_with = function(err)
-					local found = err:error_with_code(scenario.error_code)
-
-					if found == nil then print(err) end
-
-					assert.are.same(scenario.expected, found)
+					assert.are.same(scenario.expected, err)
 					error("Terminate execution")
 				end
 

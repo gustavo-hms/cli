@@ -19,7 +19,7 @@ function parse(opts)
 
 	local args = iter.sequence(arg)
 	local positionals = iter.sequence(opts.ordered_positionals)
-	local error_list = errors.list()
+	local validation = errors.validation()
 
 	local new_arg_mode = function()
 		local item = args:next()
@@ -73,7 +73,7 @@ function parse(opts)
 	end
 
 	unexpected_flag_mode = function(name)
-		error_list:add(errors.unknown_arg(text.add_initial_hyphens(name)))
+		validation:add(errors.unknown_arg(text.add_initial_hyphens(name)))
 		return new_arg_mode()
 	end
 
@@ -105,22 +105,22 @@ function parse(opts)
 	end
 
 	missing_value_mode = function(arg)
-		error_list:add(errors.missing_value(arg:name_with_hyphens()))
+		validation:add(errors.missing_value(arg:name_with_hyphens()))
 		return new_arg_mode()
 	end
 
 	wrong_value_mode = function(err)
-		error_list:add(err)
+		validation:add(err)
 		return new_arg_mode()
 	end
 
 	unexpected_positional_mode = function(value)
-		error_list:add(errors.unexpected_positional(value))
+		validation:add(errors.unexpected_positional(value))
 		return new_arg_mode()
 	end
 
 	new_arg_mode()
-	return error_list:toerror()
+	return errors.toerror(validation)
 end
 
 return _ENV

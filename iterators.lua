@@ -36,7 +36,6 @@ end
 function metatable:map(fn)
 	return new(function()
 		local a, b, c, d, e = self:next()
-		-- print(a,b,c,d,e)
 		if a == nil then return nil end
 		return fn(a, b, c, d, e)
 	end)
@@ -50,6 +49,17 @@ function metatable:filter(predicate)
 			if predicate(a,b,c,d,e) then return a, b, c, d, e end
 		end
 	end)
+end
+
+function metatable:find(predicate)
+	while true do
+		local a, b, c, d, e = self:next()
+		if a == nil then return end
+
+		if predicate(a,b,c,d,e) then
+			return a, b, c, d, e
+		end
+	end
 end
 
 function metatable:array()
