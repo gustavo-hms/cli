@@ -83,22 +83,6 @@ describe("The #map method", function()
 	end)
 end)
 
-describe("The #flatmap method", function()
-	it("should flatten a nested structure", function()
-		local t = { pares = {12, 16, 4}, impares = {15, 21, 17} }
-
-		local result = iter.pairs(t):flatmap(function(k,v) return iter.sequence(v) end):array()
-
-		if result[1] == 12 then
-			assert.are.same({12, 16, 4, 15, 21, 17}, result)
-		elseif result[1] == 15 then
-			assert.are.same({15, 21, 17, 12, 16, 4}, result)
-		else
-			assert.is_true(false)
-		end
-	end)
-end)
-
 describe("The #find method", function()
 	it("should return the first found element", function()
 		local t = {23, 7, 13, 20, 11, 15, 12}
