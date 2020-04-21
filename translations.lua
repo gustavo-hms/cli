@@ -36,7 +36,7 @@ para obter maiores detalhes sobre um comando específico.
 
     %s --help
 
-para ver uma mensagem de ajuda.
+se precisar de ajuda.
 
 ]],
 
@@ -50,9 +50,9 @@ para ver uma mensagem de ajuda.
 
 		unexpected_positional = "o valor “%s” informado não era esperado e o programa não sabe o que fazer com ele",
 
-		command_not_provided = "Erro: não foi informado qual comando executar. Os comandos disponíveis são:\n\n%s\n",
+		command_not_provided = "Erro: não foi informado qual comando executar. Os comandos disponíveis são:\n\n%s",
 
-		unknown_command = "Erro: o comando “%s” não existe. Os comandos disponíveis são:\n\n%s\n",
+		unknown_command = "Erro: o comando “%s” não existe. Os comandos disponíveis são:\n\n%s",
 	},
 	en_US = {
 		help_has_options = "[options]",
@@ -87,7 +87,7 @@ to get more details about a specific command.
 
     %s --help
 
-to see a help message.
+if you need some help.
 
 ]],
 
@@ -101,9 +101,9 @@ to see a help message.
 
 		unexpected_positional = "the given value “%s” and the program doesn't know what to do with it",
 
-		command_not_provided = "Error: no command given. Available commands are:\n\n%s\n",
+		command_not_provided = "Error: no command given. Available commands are:\n\n%s",
 
-		unknown_command = "Error: the command “%s” doesn't exist. Available commands are:\n\n%s\n",
+		unknown_command = "Error: the command “%s” doesn't exist. Available commands are:\n\n%s",
 	}
 }
 

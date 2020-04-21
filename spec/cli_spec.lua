@@ -656,7 +656,7 @@ You can run:
 
     program --help
 
-to see a help message.
+if you need some help.
 
 ]]
 
@@ -736,4 +736,49 @@ insulate("A #program, when finding a #command #error", function()
 			end)
 		end)
 	end
+end)
+
+insulate("A #program, when dealing with a #command #error on arguments", function()
+	it("should print an error #message", function()
+
+		local expected =
+[[Error: no command given. Available commands are:
+
+    ∙ nome
+    ∙ outro
+
+You can run:
+
+    program --help
+
+if you need some help.
+
+]]
+
+		_G.arg = {
+			[0] = "program",
+		}
+
+		local errors = require "errors"
+		errors.exit_with = function(err)
+			assert.are.same(expected, tostring(err))
+			error("Terminate execution")
+		end
+
+		package.loaded.parser = nil
+		package.loaded.command = nil
+		package.loaded.cli = nil
+		local cli = require "cli"
+
+		cli.locale "en_US"
+
+		_G.nome = cli.command {}
+		_G.outro = cli.command {}
+
+		assert.has_error(function() 
+			cli.program {
+				cli.flag "number" { type = cli.number, default = 17 }
+			}
+		end, "Terminate execution")
+	end)
 end)
