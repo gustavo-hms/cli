@@ -130,6 +130,20 @@ describe("The #chain function", function()
 		local result = iter.chain(i1, iter.once(nil), i2):array()
 		assert.are.same({3, 5, 7, 4, 6, 8}, result)
 	end)
+
+	it("should play well with a concat", function()
+		local i1 = iter.sequence {"um", "dois"}
+		local i2 = iter.sequence {"três", "quatro"}
+		local result = iter.chain(i1, iter.once "", iter.once "", i2):concat("\n")
+		local expected =
+[[um
+dois
+
+
+três
+quatro]]
+		assert.are.same(expected, result)
+	end)
 end)
 
 describe("The #once function", function()

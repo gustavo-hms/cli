@@ -649,12 +649,12 @@ insulate("A #program, when dealing with #validation #error on arguments", functi
 		local expected =
 [[The following errors were found during the program execution:
 
-	- unknown option: “--unexpected”
-	- the option “--number” expects a number, but the given value was “dezenove”
+    ∙ the option “--number” expects a number, but the given value was “dezenove”
+    ∙ unknown option: “--unexpected”
 
-You can run
+You can run:
 
-	program --help
+    program --help
 
 to see a help message.
 
@@ -679,9 +679,11 @@ to see a help message.
 
 		cli.locale "en_US"
 
-		assert.has_error(cli.program {
-			cli.flag "number" { type = cli.number }
-		}, "Terminate execution")
+		assert.has_error(function() 
+			cli.program {
+				cli.flag "number" { type = cli.number }
+			}
+		end, "Terminate execution")
 	end)
 end)
 

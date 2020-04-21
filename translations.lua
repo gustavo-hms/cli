@@ -29,27 +29,26 @@ para obter maiores detalhes sobre um comando específico.
 
 		panic_positional_type_mismatch_some = "O tipo do argumento “%s” é número, mas algum de seus valores padrão (a saber: “%s”) não é um número",
 
-		holder = "Os seguintes erros foram encontrados na execução do programa:\n",
+		validation = "Os seguintes erros foram encontrados na execução do programa:\n",
 
-		tip = [[
+		tip =
+[[Você pode executar
 
-Você pode executar
-
-	%s --help
+    %s --help
 
 para ver uma mensagem de ajuda.
 
 ]],
 
-		not_expecting = "O valor “%s” foi passado para a opção “%s”, que não espera receber nenhum valor.",
+		not_expecting = "o valor “%s” foi passado para a opção “%s”, que não espera receber nenhum valor",
 
-		not_a_number = "A opção “%s” espera receber um número, mas o valor passado foi “%s”.",
+		not_a_number = "a opção “%s” espera receber um número, mas o valor passado foi “%s”",
 
-		missing_value = "Nenhum valor informado para a opção “%s”.",
+		missing_value = "nenhum valor informado para a opção “%s”",
 
-		unknown_arg = "Opção desconhecida: “%s”.",
+		unknown_arg = "opção desconhecida: “%s”",
 
-		unexpected_positional = "O valor “%s” informado não era esperado e o programa não sabe o que fazer com ele.",
+		unexpected_positional = "o valor “%s” informado não era esperado e o programa não sabe o que fazer com ele",
 
 		command_not_provided = "Erro: não foi informado qual comando executar. Os comandos disponíveis são:\n\n%s\n",
 
@@ -81,12 +80,12 @@ to get more details about a specific command.
 
 		panic_positional_type_mismatch_some = "The type of the argument “%s” is a number, but one of its default values (namely: “%s”) is not a number",
 
-		holder = "The following errors were found in the program execution:",
+		validation = "The following errors were found during the program execution:",
 
 		tip =
 [[You can run:
 
-	%s --help
+    %s --help
 
 to see a help message.
 

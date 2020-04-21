@@ -4,9 +4,6 @@ local translations = require "translations"
 local arg = arg
 local panic_with_error = error
 local exit = os.exit
-local ipairs = ipairs
-local next = next
-local pairs = pairs
 local setmetatable = setmetatable
 local stderr = io.stderr
 local string = string
@@ -15,6 +12,8 @@ local tostring = tostring
 local type = type
 
 local _ENV = {}
+
+local chain, once, sequence = iter.chain, iter.once, iter.sequence
 
 function panic(message, ...)
 	panic_with_error(string.format(message, ...), 3)
@@ -49,12 +48,12 @@ local error = { __error = true }
 error.__index = error
 
 function error:__tostring()
-	local messages = iter.chain(iter.sequence(self.messages), iter.once(message("tip", arg[0])))
-	return messages:map(function(i) return i.text end):concat("\n\n")
+	local messages = chain(sequence(self.messages), once{text=""}, once(message("tip", arg[0])))
+	return messages:map(function(m) return m.text end):concat("\n")
 end
 
 function error:message_with_code(code)
-	return iter.sequence(self.messages):find(function(i) return i.code == code end)
+	return sequence(self.messages):find(function(m) return m.code == code end)
 end
 
 local function new_error(...)
@@ -62,8 +61,8 @@ local function new_error(...)
 end
 
 local function show_list(list)
-	local show_element = function(e) return string.format("    - %s", e) end
-	return iter.sequence(list):map(show_element):concat("\n")
+	local show_element = function(e) return string.format("    ∙ %s", e) end
+	return sequence(list):map(show_element):concat("\n")
 end
 
 function command_not_provided(available_commands)
@@ -81,29 +80,21 @@ function validation()
 		items = {},
 
 		add = function(self, item)
-			local items_by_code = self.items[item.code] or {}
-			items_by_code[#items_by_code+1] = item
-			self.items[item.code] = items_by_code
+			self.items[#self.items+1] = item
 		end
 	}
 end
 
 function toerror(validation)
-	if next(validation.items) == nil then return end
+	if #validation.items == 0 then return end
 
-	local messages = { message "holder" }
-
-	for _, items_by_code in pairs(validation.items) do
-		for _, item in ipairs(items_by_code) do
-			messages[#messages+1] = item
-		end
-	end
-
+	local messages =
+		chain(once(message "validation"), once{text=""}, sequence(validation.items)):array()
 	return new_error(table.unpack(messages))
 end
 
 local function validation_item(code, ...)
-	return { code = code, text = "    - " .. translations[code](...) }
+	return { code = code, text = "    ∙ " .. translations[code](...) }
 end
 
 function unknown_arg(name)
