@@ -81,11 +81,10 @@ to get more details about a specific command.
 
 		panic_positional_type_mismatch_some = "The type of the argument “%s” is a number, but one of its default values (namely: “%s”) is not a number",
 
-		holder = "The following errors were found in the program execution:\n",
+		holder = "The following errors were found in the program execution:",
 
-		tip = [[
-
-You can run:
+		tip =
+[[You can run:
 
 	%s --help
 
@@ -93,15 +92,15 @@ to see a help message.
 
 ]],
 
-		not_expecting = "The value “%s” was passed to the option “%s”, which doesn't expect any value.",
+		not_expecting = "the value “%s” was passed to the option “%s”, which doesn't expect any value",
 
-		not_a_number = "The option “%s” expects a number, but the given value was “%s”.",
+		not_a_number = "the option “%s” expects a number, but the given value was “%s”",
 
-		missing_value = "No value given to the option “%s”.",
+		missing_value = "no value given to the option “%s”",
 
-		unknown_arg = "Unknown option: “%s”.",
+		unknown_arg = "unknown option: “%s”",
 
-		unexpected_positional = "The given value “%s” and the program doesn't know what to do with it.",
+		unexpected_positional = "the given value “%s” and the program doesn't know what to do with it",
 
 		command_not_provided = "Error: no command given. Available commands are:\n\n%s\n",
 

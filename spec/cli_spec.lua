@@ -1,3 +1,15 @@
+local new_printer = function()
+	local printer = {
+		output = {},
+	}
+
+	printer.print = function(str)
+		printer.output[#printer.output + 1] = str
+	end
+
+	return printer
+end
+
 insulate("A #program", function()
 	local errors = require "errors"
 
@@ -195,18 +207,6 @@ insulate("A #complete program", function()
 end)
 
 insulate("A #program", function()
-	local new_printer = function()
-		local printer = {
-			output = {},
-		}
-
-		printer.print = function(str)
-			printer.output[#printer.output + 1] = str
-		end
-
-		return printer
-	end
-
 	it("should generate a #help message from the spec", function()
 		local errors = require "errors"
 		errors.exit_with = function(err)
@@ -509,7 +509,7 @@ to get more details about a specific command.
 	end)
 end)
 
-describe("A #program, when finding a #validation #error", function()
+insulate("A #program, when finding a #validation #error", function()
 	local errors = require "errors"
 	local cli = require "cli"
 
@@ -643,7 +643,49 @@ describe("A #program, when finding a #validation #error", function()
 	end
 end)
 
-describe("A #program, when finding a #command #error", function()
+insulate("A #program, when dealing with #validation #error on arguments", function()
+	it("should print an error #message", function()
+
+		local expected =
+[[The following errors were found during the program execution:
+
+	- unknown option: “--unexpected”
+	- the option “--number” expects a number, but the given value was “dezenove”
+
+You can run
+
+	program --help
+
+to see a help message.
+
+]]
+
+		_G.arg = {
+			[0] = "program",
+			[1] = "--number=dezenove",
+			[2] = "--unexpected"
+		}
+
+		local errors = require "errors"
+		errors.exit_with = function(err)
+			assert.are.same(expected, tostring(err))
+			error("Terminate execution")
+		end
+
+		package.loaded.parser = nil
+		package.loaded.command = nil
+		package.loaded.cli = nil
+		local cli = require "cli"
+
+		cli.locale "en_US"
+
+		assert.has_error(cli.program {
+			cli.flag "number" { type = cli.number }
+		}, "Terminate execution")
+	end)
+end)
+
+insulate("A #program, when finding a #command #error", function()
 	local errors = require "errors"
 	local cli = require "cli"
 

@@ -49,8 +49,8 @@ local error = { __error = true }
 error.__index = error
 
 function error:__tostring()
-	local messages = iter.sequence(self.messages):map(function(i) return i.text end)
-	return iter.chain(messages, iter.once(message("tip", arg[0]))):concat("\n")
+	local messages = iter.chain(iter.sequence(self.messages), iter.once(message("tip", arg[0])))
+	return messages:map(function(i) return i.text end):concat("\n\n")
 end
 
 function error:message_with_code(code)
