@@ -64,11 +64,13 @@ end
 
 function metatable:array()
 	local t = {}
+	local i = 1
 
 	while true do
 		local value = self:next()
 		if value == nil then break end
-		t[#t+1] = value
+		t[i] = value
+		i = i + 1
 	end
 
 	return t
