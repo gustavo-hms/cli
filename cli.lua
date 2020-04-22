@@ -2,9 +2,8 @@ local cmd = require "command"
 local errors = require "errors"
 local info = require "info"
 local options = require "options"
+local stdout = io.stdout
 local translations = require "translations"
-
-local print = print
 
 local _ENV = {}
 
@@ -22,7 +21,7 @@ local function simple_program(program_cmd)
 
 	if program_cmd:help_requested() then
 		local program_info = info.new(program_cmd)
-		print(program_info:help())
+		stdout:write(program_info:help())
 		return
 	end
 
@@ -39,9 +38,9 @@ local function program_with_commands(global_cmd)
 		local program_info = info.new_with_commands(global_cmd)
 
 		if subcommand then
-			print(program_info:help_for(subcommand))
+			stdout:write(program_info:help_for(subcommand))
 		else
-			print(program_info:help())
+			stdout:write(program_info:help())
 		end
 
 		return
