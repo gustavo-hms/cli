@@ -17,10 +17,7 @@ local program = {}
 
 function new(cmd)
 	cmd.name = cmd.name or arg[0]
-
-	local info = { command = cmd }
-
-	return setmetatable(info, { __index = program })
+	return setmetatable({ command = cmd }, { __index = program })
 end
 
 function program:help()

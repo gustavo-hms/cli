@@ -8,6 +8,8 @@ local translations = {
 
 		help_options = "Opções:",
 
+		help_default = "(padrão: %s)",
+
 		help_usage = "Uso:",
 
 		help_arguments = "Argumentos:",
@@ -29,7 +31,7 @@ para obter maiores detalhes sobre um comando específico.
 
 		panic_positional_type_mismatch_some = "O tipo do argumento “%s” é número, mas algum de seus valores padrão (a saber: “%s”) não é um número",
 
-		validation = "Os seguintes erros foram encontrados na execução do programa:\n",
+		validation = "Os seguintes erros foram encontrados na execução do programa:",
 
 		tip =
 [[Você pode executar
@@ -60,6 +62,8 @@ se precisar de ajuda.
 		help_options = "Options:",
 
 		help_usage = "Usage:",
+
+		help_default = "(default: %s)",
 
 		help_arguments = "Arguments:",
 

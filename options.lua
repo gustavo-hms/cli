@@ -64,6 +64,10 @@ function flag_prototype:help()
 
 	if self.type ~= boolean then
 		line[2] = format("<%s>", self.type)
+
+		if self.value then
+			line[3] = translations.help_default(self.value)
+		end
 	end
 
 	return format("    %s\n        %s", table.concat(line, " "), self.description)
@@ -134,13 +138,14 @@ function positional_prototype:name_with_hyphens()
 end
 
 function positional_prototype:help()
-	local line = self.name
+	local line = { self.many and self.name .. "..." or self.name }
 
-	if self.many then
-		line = line .. "..."
+	if self.value then
+		local default = type(self.value) == "table" and table.concat(self.value, " ") or self.value
+		line[2] = translations.help_default(default)
 	end
 
-	return format("    %s\n        %s", line, self.description)
+	return format("    %s\n        %s", table.concat(line, " "), self.description)
 end
 
 function is_positional(t)
