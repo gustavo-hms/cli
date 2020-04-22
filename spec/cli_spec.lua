@@ -238,7 +238,8 @@ insulate("A #program", function()
 
 			cli.flag "s,second" {
 				"The second option",
-				type = cli.string
+				type = cli.string,
+				default = "segunda"
 			},
 
 			cli.flag "t" {
@@ -264,7 +265,7 @@ Options:
     --first <number>
         The first option
 
-    -s, --second <string>
+    -s, --second <string> (default: segunda)
         The second option
 
     -t
@@ -417,7 +418,8 @@ to get more details about a specific command.
 				"The numbers to operate upon",
 
 				type = cli.number,
-				many = true
+				many = true,
+				default = {17, 19}
 			}
 		}
 
@@ -435,7 +437,7 @@ Options:
 
 Arguments:
 
-    numbers...
+    numbers... (default: 17 19)
         The numbers to operate upon
 
 ]]
