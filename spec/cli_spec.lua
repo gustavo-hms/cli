@@ -3,7 +3,7 @@ local new_printer = function()
 		output = {},
 	}
 
-	printer.print = function(str)
+	printer.write = function(_, str)
 		printer.output[#printer.output + 1] = str
 	end
 
@@ -214,7 +214,7 @@ insulate("A #program", function()
 		end
 
 		local printer = new_printer()
-		_G.print = printer.print
+		_G.io.stdout = printer
 
 		_G.arg = {
 			[0] = "program",
@@ -283,24 +283,13 @@ Arguments:
 end)
 
 insulate("A #program with subcommands", function()
-	local new_printer = function()
-		local printer = {
-			output = {},
-		}
-
-		printer.print = function(str)
-			printer.output[#printer.output + 1] = str
-		end
-
-		return printer
-	end
 
 	it("should generate a #help message from the spec", function()
 		local errors = require "errors"
 		stub(errors, "exit_with")
 
 		local printer = new_printer()
-		_G.print = printer.print
+		_G.io.stdout = printer
 
 		_G.arg = {
 			[0] = "compute",
@@ -374,7 +363,7 @@ to get more details about a specific command.
 		local errors = require "errors"
 
 		local printer = new_printer()
-		_G.print = printer.print
+		_G.io.stdout = printer
 
 		errors.exit_with = function(err)
 			assert.is_nil(tostring(err))
@@ -450,7 +439,7 @@ Arguments:
 		stub(errors, "exit_with")
 
 		local printer = new_printer()
-		_G.print = printer.print
+		_G.io.stdout = printer
 
 		_G.arg = {
 			[0] = "compute",
