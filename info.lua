@@ -26,7 +26,8 @@ function program:help()
 	local txt = {
 		cmd.description,
 		translations.help_usage(),
-		"    " .. self:usage()
+		"    " .. self:usage(),
+		"    " .. translations.help_mandatory_tip(),
 	}
 
 	if cmd:has_flags() then

@@ -260,6 +260,8 @@ Usage:
 
     program [options] fourth
 
+    Options and arguments without a default value are mandatory.
+
 Options:
 
     --first <number>
@@ -418,6 +420,8 @@ to get more details about a specific command.
 Usage:
 
     compute all-above [options] numbers...
+
+    Options and arguments without a default value are mandatory.
 
 Options:
 

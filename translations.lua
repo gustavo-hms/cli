@@ -14,6 +14,8 @@ local translations = {
 
 		help_arguments = "Argumentos:",
 
+		help_mandatory_tip = "Opções e argumentos sem um valor padrão são de preenchimento obrigatório.",
+
 		help_command_help_tip =
 [[Você pode executar
 
@@ -66,6 +68,8 @@ se precisar de ajuda.
 		help_default = "(default: %s)",
 
 		help_arguments = "Arguments:",
+
+		help_mandatory_tip = "Options and arguments without a default value are mandatory.",
 
 		help_command_help_tip =
 [[You can run
