@@ -4,7 +4,7 @@ A lua module to build command line interfaces declaratively.
 
 ## Some examples
 
-To write a program with flags and positional arguments, you do the following:
+To write a program with flags and positional arguments, you can do the following:
 
 ```lua
 local cli = require "cli"
@@ -189,11 +189,11 @@ The start point of the `cli` module are the functions `cli.program` and `cli.com
 
 ```
 {
-	A string containing a description (used for help messages),
-	
-	A sequence of definitions of command line arguments,
-	
-	A function to be executed
+    A string containing a description (used for help messages),
+    
+    A sequence of definitions of command line arguments,
+    
+    A function to be executed
 }
 ```
 
@@ -201,13 +201,13 @@ The provided function receives as argument a table with all command line argumen
 
 ```lua
 cli.program {
-	cli.flag "a-number" {
-		type = cli.number
-	},
-	
-	function(args)
-		print(args.a_number)
-	end
+    cli.flag "a-number" {
+        type = cli.number
+    },
+    
+    function(args)
+        print(args.a_number)
+    end
 }
 ```
 
@@ -217,21 +217,21 @@ Any value returned by the main function (the one present in the `cli.program` ta
 
 ```lua
 a_command = cli.command {
-	cli.flag "do-it" {
-		type = cli.boolean
-	},
-	
-	function(args, seventeen, nineteen)
-		print(args.do_it)
-		assert(seventeen == 17)
-		assert(nineteen == 19)
-	end
+    cli.flag "do-it" {
+        type = cli.boolean
+    },
+    
+    function(args, seventeen, nineteen)
+        print(args.do_it)
+        assert(seventeen == 17)
+        assert(nineteen == 19)
+    end
 }
 
 cli.program {
-	function()
-		return 17, 19
-	end
+    function()
+        return 17, 19
+    end
 }
 ```
 
@@ -245,8 +245,8 @@ Flags are defined with `cli.flag`, passing to it a name and a table describing i
 
 ```lua
 cli.flag "first-flag" {
-	"This is the first flag",
-	type = cli.boolean
+    "This is the first flag",
+    type = cli.boolean
 }
 ```
 
@@ -258,7 +258,7 @@ cli.flag "o,output" {}
 
 The description table has the following fields:
 - an optional string containing a description;
-- a `type` key describing the value this flag accepts. Must be one of `cli.string`, `cli.number` or `cli.boolean`. It defaults to `cli.string`. If it is set to `cli.number`, the module will try to convert the value given at program invocation to a number and print an error if it can not succeed;
+- a `type` key describing the value this flag accepts. Must be one of `cli.string`, `cli.number` or `cli.boolean`. It defaults to `cli.string`. If it is set to `cli.number`, the module will try to convert the value given at program invocation to a number and prints an error if it can not succeed;
 - an optional `default` key containing a default value for this flag. Flags without a default value are considered mandatory.
 
 #### Positional arguments
@@ -267,25 +267,25 @@ Positional arguments are defined with `cli.positional`, passing to it a name and
 
 ```lua
 cli.positional "file" {
-	"The file to be read",
-	type = cli.string
+    "The file to be read",
+    type = cli.string
 }
 ```
 
 The description table has the following fields:
 - an optional string containing a description;
-- a `type` key describing the value this flag accepts. Must be one of `cli.string` or `cli.number`. It defaults to `cli.string`. If it is set to `cli.number`, the module will try to convert the value given at program invocation to a number and print an error if it can not succeed;
+- a `type` key describing the value this positional accepts. Must be one of `cli.string` or `cli.number`. It defaults to `cli.string`. If it is set to `cli.number`, the module will try to convert the value given at program invocation to a number and prints an error if it can not succeed;
 - an optional `default` key containing a default value for this positional. Positionals without a default value are considered mandatory;
-- an optional `many` key telling whether this optional can receive many values at once.
+- an optional `many` key telling whether this positional can receive many values at once.
 
 The `many` key is used this way:
 
 ```lua
 cli.positional "files" {
-	"The files to be edited",
-	type = cli.string,
-	many = true,
-	default = { "README.md", "cli.lua" }
+    "The files to be edited",
+    type = cli.string,
+    many = true,
+    default = { "README.md", "cli.lua" }
 }
 ```
 
