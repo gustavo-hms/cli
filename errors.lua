@@ -97,20 +97,28 @@ local function validation_item(code, ...)
 	return { code = code, text = "    ∙ " .. translations[code](...) }
 end
 
-function unknown_arg(name)
-	return validation_item("unknown_arg", name)
+function flag_unknown_arg(name)
+	return validation_item("flag_unknown_arg", name)
 end
 
-function missing_value(name)
-	return validation_item("missing_value", name)
+function flag_missing_value(name)
+	return validation_item("flag_missing_value", name)
 end
 
-function not_expecting(arg, value)
-	return validation_item("not_expecting", value, arg)
+function positional_missing_value(name)
+	return validation_item("positional_missing_value", name)
 end
 
-function not_a_number(arg, value)
-	return validation_item("not_a_number", arg, value)
+function flag_not_expecting(arg, value)
+	return validation_item("flag_not_expecting", value, arg)
+end
+
+function flag_not_a_number(arg, value)
+	return validation_item("flag_not_a_number", arg, value)
+end
+
+function positional_not_a_number(arg, value)
+	return validation_item("positional_not_a_number", arg, value)
 end
 
 function unexpected_positional(value)

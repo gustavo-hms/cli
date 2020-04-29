@@ -514,8 +514,8 @@ insulate("A #program, when finding a #validation #error", function()
 			program = { cli.flag "a-flag" { default = "" } },
 			arg = { "--other-flag" },
 			commands = {},
-			error_code = "unknown_arg",
-			expected = errors.unknown_arg("--other-flag"),
+			error_code = "flag_unknown_arg",
+			expected = errors.flag_unknown_arg("--other-flag"),
 		},
 		{
 			description = "should deal with an #unknown_arg when executing a subcommand",
@@ -524,16 +524,16 @@ insulate("A #program, when finding a #validation #error", function()
 			commands = {
 				subcommand = { cli.flag "second" { default = "" } }
 			},
-			error_code = "unknown_arg",
-			expected = errors.unknown_arg("--another-flag"),
+			error_code = "flag_unknown_arg",
+			expected = errors.flag_unknown_arg("--another-flag"),
 		},
 		{
 			description = "should deal with a #not_expecting",
 			program = {cli.flag "booleano" { type = cli.boolean }},
 			arg = { "--booleano=algo" },
 			commands = {},
-			error_code = "not_expecting",
-			expected = errors.not_expecting("--booleano", "algo"),
+			error_code = "flag_not_expecting",
+			expected = errors.flag_not_expecting("--booleano", "algo"),
 		},
 		{
 			description = "should deal with a #missing_value for an #empty_arg",
@@ -543,16 +543,16 @@ insulate("A #program, when finding a #validation #error", function()
 			},
 			arg = {},
 			commands = {},
-			error_code = "missing_value",
-			expected = errors.missing_value("--empty-flag"),
+			error_code = "flag_missing_value",
+			expected = errors.flag_missing_value("--empty-flag"),
 		},
 		{
 			description = "should deal with a #missing_value even if flag's name appears on execution",
 			program = {cli.flag "a-flag" {}},
 			arg = { "--a-flag" },
 			commands = {},
-			error_code = "missing_value",
-			expected = errors.missing_value("--a-flag"),
+			error_code = "flag_missing_value",
+			expected = errors.flag_missing_value("--a-flag"),
 		},
 		{
 			description = "should deal with a #missing_value when executing a subcommand",
@@ -561,16 +561,24 @@ insulate("A #program, when finding a #validation #error", function()
 			commands = {
 				subcommand = { cli.flag "second" {} }
 			},
-			error_code = "missing_value",
-			expected = errors.missing_value("--second"),
+			error_code = "flag_missing_value",
+			expected = errors.flag_missing_value("--second"),
+		},
+		{
+			description = "should deal with a #missing_value for a positional",
+			program = {cli.positional "a-positional" {}, function() end},
+			arg = {},
+			commands = {},
+			error_code = "positional_missing_value",
+			expected = errors.positional_missing_value("a-positional"),
 		},
 		{
 			description = "should deal with a #not_a_number",
 			program = {cli.flag "a-flag" { type = cli.number }},
 			arg = {"--a-flag","=","dezessete"},
 			commands = {},
-			error_code = "not_a_number",
-			expected = errors.not_a_number("--a-flag", "dezessete"),
+			error_code = "flag_not_a_number",
+			expected = errors.flag_not_a_number("--a-flag", "dezessete"),
 		},
 		{
 			description = "should deal with a #not_a_number when executing a subcommand",
@@ -579,8 +587,16 @@ insulate("A #program, when finding a #validation #error", function()
 			commands = {
 				subcommand = { cli.flag "a-number" { type = cli.number } }
 			},
-			error_code = "not_a_number",
-			expected = errors.not_a_number("--a-number", "dezessete"),
+			error_code = "flag_not_a_number",
+			expected = errors.flag_not_a_number("--a-number", "dezessete"),
+		},
+		{
+			description = "should deal with a #not_a_number for a positional",
+			program = {cli.positional "a-positional" { type = cli.number }},
+			arg = {"quatro"},
+			commands = {},
+			error_code = "positional_not_a_number",
+			expected = errors.positional_not_a_number("a-positional", "quatro")
 		},
 		{
 			description = "should deal with an #unexpected_positional",

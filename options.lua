@@ -23,7 +23,7 @@ function flag_prototype:set(value)
 
 	if self.type == boolean then
 		if value then
-			return errors.not_expecting(name, value)
+			return errors.flag_not_expecting(name, value)
 		end
 
 		self.value = true
@@ -31,14 +31,14 @@ function flag_prototype:set(value)
 	end
 
 	if not value then
-		return errors.missing_value(name)
+		return errors.flag_missing_value(name)
 	end
 
 	if self.type == number then
 		self.value = tonumber(value)
 
 		if not self.value then
-			return errors.not_a_number(name, value)
+			return errors.flag_not_a_number(name, value)
 		end
 
 		return
@@ -117,7 +117,7 @@ function positional_prototype:add(value)
 		input_number = tonumber(value)
 
 		if not input_number then
-			return errors.not_a_number(self.name, value)
+			return errors.positional_not_a_number(self.name, value)
 		end
 	end
 
@@ -215,7 +215,7 @@ function options_prototype:values()
 
 	for pos in self:positionals() do
 		if pos.value == nil then
-			validation:add(errors.missing_value(pos.name))
+			validation:add(errors.positional_missing_value(pos.name))
 		else
 			values[pos:name_with_underscores()] = pos.value
 		end
@@ -223,7 +223,7 @@ function options_prototype:values()
 
 	for flg in self:flags() do
 		if flg.value == nil then
-			validation:add(errors.missing_value(flg:name_with_hyphens()))
+			validation:add(errors.flag_missing_value(flg:name_with_hyphens()))
 		else
 			values[flg:name_with_underscores()] = flg.value
 		end

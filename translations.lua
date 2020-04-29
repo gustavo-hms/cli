@@ -44,14 +44,18 @@ se precisar de ajuda.
 
 ]],
 
-		not_expecting = "o valor “%s” foi passado para a opção “%s”, que não espera receber nenhum valor",
+		flag_not_expecting = "o valor “%s” foi passado para a opção “%s”, que não espera receber nenhum valor",
 
-		not_a_number = "a opção “%s” espera receber um número, mas o valor passado foi “%s”",
+		flag_not_a_number = "a opção “%s” espera receber um número, mas o valor passado foi “%s”",
 
-		missing_value = "nenhum valor informado para a opção “%s”",
+		flag_missing_value = "nenhum valor informado para a opção “%s”",
 
-		unknown_arg = "opção desconhecida: “%s”",
+		flag_unknown_arg = "opção desconhecida: “%s”",
 
+		positional_not_a_number = "o argumento “%s” espera receber um número, mas o valor passado foi “%s”",
+
+		positional_missing_value = "nenhum valor informado para o argumento “%s”",
+		
 		unexpected_positional = "o valor “%s” informado não era esperado e o programa não sabe o que fazer com ele",
 
 		command_not_provided = "Erro: não foi informado qual comando executar. Os comandos disponíveis são:\n\n%s",
@@ -99,14 +103,18 @@ if you need some help.
 
 ]],
 
-		not_expecting = "the value “%s” was passed to the option “%s”, which doesn't expect any value",
+		flag_not_expecting = "the value “%s” was passed to the option “%s”, which doesn't expect any value",
 
-		not_a_number = "the option “%s” expects a number, but the given value was “%s”",
+		flag_not_a_number = "the option “%s” expects a number, but the given value was “%s”",
 
-		missing_value = "no value given to the option “%s”",
+		flag_missing_value = "no value given to the option “%s”",
 
-		unknown_arg = "unknown option: “%s”",
+		flag_unknown_arg = "unknown option: “%s”",
 
+		positional_not_a_number = "the argument “%s” expects a number, but the given value was “%s”",
+
+		positional_missing_value = "no value given to the argument “%s”",
+		
 		unexpected_positional = "the given value “%s” and the program doesn't know what to do with it",
 
 		command_not_provided = "Error: no command given. Available commands are:\n\n%s",
