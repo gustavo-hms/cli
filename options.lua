@@ -189,7 +189,9 @@ local options_prototype = {}
 
 function options_prototype:add_flag(flg)
 	if not self.named_flags[flg.names[1]] then
-		self.ordered_flags[#self.ordered_flags+1] = flg
+    	if flg.names[#flg.names] ~= "help" then
+    		self.ordered_flags[#self.ordered_flags+1] = flg
+		end
 
 		for _, name in ipairs(flg.names) do
 			self.named_flags[name] = flg

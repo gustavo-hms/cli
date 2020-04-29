@@ -208,52 +208,52 @@ end)
 
 insulate("A #program", function()
 	it("should generate a #help message from the spec", function()
-		local errors = require "errors"
-		errors.exit_with = function(err)
-			assert.is_nil(tostring(err))
-		end
-
-		local printer = new_printer()
-		_G.io.stdout = printer
-
-		_G.arg = {
-			[0] = "program",
-			[1] = "--help"
-		}
-
-		package.loaded.parser = nil
-		package.loaded.command = nil
-		package.loaded.cli = nil
-		local cli = require "cli"
-
-		cli.locale "en_US"
-
-		cli.program {
-			"A program to test help messages",
-
-			cli.flag "first" {
-				"The first option",
-				type = cli.number
-			},
-
-			cli.flag "s,second" {
-				"The second option",
-				type = cli.string,
-				default = "segunda"
-			},
-
-			cli.flag "t" {
-				"Just another option",
-				type = cli.boolean
-			},
-
-			cli.positional "fourth" {
-				"A positional argument",
-				type = cli.number
-			}
-		}
-
-		local expected =
+    	local errors = require "errors"
+    	errors.exit_with = function(err)
+        	assert.is_nil(tostring(err))
+    	end
+    	
+    	local printer = new_printer()
+    	_G.io.stdout = printer
+    	
+    	_G.arg = {
+        	[0] = "program",
+        	[1] = "--help"
+    	}
+    	
+    	package.loaded.parser = nil
+    	package.loaded.command = nil
+    	package.loaded.cli = nil
+    	local cli = require "cli"
+    	
+    	cli.locale "en_US"
+    	
+    	cli.program {
+        	"A program to test help messages",
+        	
+        	cli.flag "first" {
+            	"The first option",
+            	type = cli.number
+        	},
+        	
+        	cli.flag "s,second" {
+            	"The second option",
+            	type = cli.string,
+            	default = "segunda"
+        	},
+        	
+        	cli.flag "t" {
+            	"Just another option",
+            	type = cli.boolean
+        	},
+        	
+        	cli.positional "fourth" {
+            	"A positional argument",
+            	type = cli.number
+        	}
+    	}
+    	
+    	local expected =
 [[A program to test help messages
 
 Usage:
@@ -277,6 +277,121 @@ Arguments:
 
     fourth
         A positional argument
+
+]]
+    	
+    	assert.are.same(expected, table.concat(printer.output))
+	end)
+
+	it("should generate a #help message for a program with #only positionals", function()
+		local errors = require "errors"
+		errors.exit_with = function(err)
+			assert.is_nil(tostring(err))
+		end
+
+		local printer = new_printer()
+		_G.io.stdout = printer
+
+		_G.arg = {
+			[0] = "program",
+			[1] = "--help"
+		}
+
+		package.loaded.parser = nil
+		package.loaded.command = nil
+		package.loaded.cli = nil
+		local cli = require "cli"
+
+		cli.locale "en_US"
+
+		cli.program {
+			"A program to test help messages",
+
+			cli.positional "fourth" {
+				"A positional argument",
+				type = cli.number
+			}
+		}
+
+		local expected =
+[[A program to test help messages
+
+Usage:
+
+    program fourth
+
+    Options and arguments without a default value are mandatory.
+
+Arguments:
+
+    fourth
+        A positional argument
+
+]]
+
+		assert.are.same(expected, table.concat(printer.output))
+	end)
+
+	it("should generate a #help message for a program with only flags", function()
+		local errors = require "errors"
+		errors.exit_with = function(err)
+			assert.is_nil(tostring(err))
+		end
+
+		local printer = new_printer()
+		_G.io.stdout = printer
+
+		_G.arg = {
+			[0] = "program",
+			[1] = "--help"
+		}
+
+		package.loaded.parser = nil
+		package.loaded.command = nil
+		package.loaded.cli = nil
+		local cli = require "cli"
+
+		cli.locale "en_US"
+
+		cli.program {
+			"A program to test help messages",
+        	
+        	cli.flag "first" {
+            	"The first option",
+            	type = cli.number
+        	},
+        	
+        	cli.flag "s,second" {
+            	"The second option",
+            	type = cli.string,
+            	default = "segunda"
+        	},
+        	
+        	cli.flag "t" {
+            	"Just another option",
+            	type = cli.boolean
+        	},
+		}
+
+		local expected =
+[[A program to test help messages
+
+Usage:
+
+    program [options]
+
+    Options and arguments without a default value are mandatory.
+
+Options:
+
+    --first <number>
+        The first option
+
+    -s, --second <string> (default: segunda)
+        The second option
+
+    -t
+        Just another option
 
 ]]
 

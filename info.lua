@@ -34,9 +34,7 @@ function program:help()
 		txt[#txt+1] = translations.help_options()
 
 		for flag in cmd:flags() do
-			if flag.names[#flag.names] ~= "help" then
-				txt[#txt+1] = flag:help()
-			end
+			txt[#txt+1] = flag:help()
 		end
 	end
 
