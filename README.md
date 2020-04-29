@@ -74,6 +74,23 @@ Arguments:
 
 ```
 
+### Automatic data validation
+
+Sticking with the previous example, calling it with `test-cli -o value --the-other=dois input.txt` will print:
+
+```
+The following errors were found during the program execution:
+
+    ∙ the option “--the-other” expects a number, but the given value was “dois”
+
+You can run:
+
+    teste.lua --help
+
+if you need some help.
+
+```
+
 ### Subcommands
 
 Your program can be easily divided into subcommands:
@@ -234,6 +251,8 @@ cli.program {
     end
 }
 ```
+
+All global variables assined with a `cli.command` are interpreted as subcommands of the program, and subcommands will be named after these global variables, replacing underscores with hyphens. So, for instance, the above example will generate a command called `a-command`.
 
 ### Defining command line arguments
 
