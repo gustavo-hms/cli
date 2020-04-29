@@ -1,9 +1,9 @@
 -- Information about the program's command line interface
 
-local command = require "command"
-local iter = require "iterators"
-local text = require "text"
-local translations = require "translations"
+local command = require "cli.command"
+local iter = require "cli.iterators"
+local text = require "cli.text"
+local translations = require "cli.translations"
 
 local _G = _G
 local arg = arg

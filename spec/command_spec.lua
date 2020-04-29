@@ -1,10 +1,10 @@
-local options = require "options"
+local options = require "cli.options"
 
 insulate("The #parse_args function", function()
 	it("should set all the flags", function()
 		_G.arg = { "--um", "=", "1", "--dois=doze", "--tres", "-q=4", "-c=cinco" }
 
-		local command = require "command"
+		local command = require "cli.command"
 
     	local um = options.flag "um" { type = options.number }
     	local dois = options.flag "d,dois" { type = options.string }
@@ -26,10 +26,10 @@ insulate("The #parse_args function", function()
 
 	it("should set the flags and the positional arguments", function()
 		_G.arg = { "--um", "=", "1", "--dois=doze", "entrada", "saida", "--tres" }
-		package.loaded.parser = nil
-		package.loaded.command = nil
+		package.loaded["cli.parser"] = nil
+		package.loaded["cli.command"] = nil
 
-		local command = require "command"
+		local command = require "cli.command"
 
 		local um = options.flag "um" { type = options.number }
 		local dois = options.flag "d,dois" { type = options.string }
@@ -51,10 +51,10 @@ insulate("The #parse_args function", function()
 
 	it("should set #many values for a positional argument", function()
 		_G.arg = { "--um", "=", "1", "--dois=doze", "doc1", "doc2", "doc3", "--tres" }
-		package.loaded.parser = nil
-		package.loaded.command = nil
+		package.loaded["cli.parser"] = nil
+		package.loaded["cli.command"] = nil
 
-		local command = require "command"
+		local command = require "cli.command"
 
 		local um = options.flag "um" { type = options.number }
 		local dois = options.flag "d,dois" { type = options.string }
@@ -74,10 +74,10 @@ insulate("The #parse_args function", function()
 
 	it("should parses successfully a misbehaved input", function()
 		_G.arg = { "--um", "=", "", "--tres", "-q=", "4", "-c=cinco" }
-		package.loaded.parser = nil
-		package.loaded.command = nil
+		package.loaded["cli.parser"] = nil
+		package.loaded["cli.command"] = nil
 
-		local command = require "command"
+		local command = require "cli.command"
 
 		local um = options.flag "um" { type = options.string }
 		local tres = options.flag "tres" { type = options.boolean }
@@ -97,10 +97,10 @@ insulate("The #parse_args function", function()
 
 	it("should detect a positional argument following a boolean flag", function()
 		_G.arg = { "--um", "=", "1", "--dois=doze", "--tres", "-q", "quinto" }
-		package.loaded.parser = nil
-		package.loaded.command = nil
+		package.loaded["cli.parser"] = nil
+		package.loaded["cli.command"] = nil
 
-		local command = require "command"
+		local command = require "cli.command"
 
 		local um = options.flag "um" { type = options.number }
 		local dois = options.flag "d,dois" { type = options.string }
@@ -122,7 +122,7 @@ insulate("The #parse_args function", function()
 end)
 
 describe("The #command function", function()
-	local command = require "command"
+	local command = require "cli.command"
 
 	it("should load the table on the first access", function()
 		local cmd = command.command {
@@ -155,9 +155,9 @@ end)
 insulate("The #load function", function()
 	it("should find the correct command", function()
 		_G.arg = {"that", "--aflag", "=", "1"}
-		package.loaded.parser = nil
-		package.loaded.command = nil
-		local command = require "command"
+		package.loaded["cli.parser"] = nil
+		package.loaded["cli.command"] = nil
+		local command = require "cli.command"
 
 		_G.this = command.command {
 			"This"
@@ -175,9 +175,9 @@ insulate("The #load function", function()
 
 	it("should #detect a #global `help` flag", function()
 		_G.arg = {"--help"}
-		package.loaded.parser = nil
-		package.loaded.command = nil
-		local command = require "command"
+		package.loaded["cli.parser"] = nil
+		package.loaded["cli.command"] = nil
+		local command = require "cli.command"
 
 		_G.this = command.command {
 			"This",

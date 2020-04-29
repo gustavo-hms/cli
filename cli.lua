@@ -1,9 +1,10 @@
-local cmd = require "command"
-local errors = require "errors"
-local info = require "info"
-local options = require "options"
+local cmd = require "cli.command"
+local errors = require "cli.errors"
+local info = require "cli.info"
+local options = require "cli.options"
+local translations = require "cli.translations"
+
 local stdout = io.stdout
-local translations = require "translations"
 
 local _ENV = {}
 

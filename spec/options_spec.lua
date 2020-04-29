@@ -1,4 +1,4 @@
-local options = require "options"
+local options = require "cli.options"
 
 describe("The #flag function", function()
 	it("should build the prescribed object", function()
@@ -230,7 +230,7 @@ describe("The #positional #add method", function()
 	end)
 end)
 
-local translations = require "translations"
+local translations = require "cli.translations"
 
 describe("An #option should #panic", function()
 	it("with a #flag type mismatch", function()

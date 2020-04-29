@@ -1,7 +1,7 @@
-local errors = require "errors"
-local iter = require "iterators"
-local options = require "options"
-local text = require "text"
+local errors = require "cli.errors"
+local iter = require "cli.iterators"
+local options = require "cli.options"
+local text = require "cli.text"
 
 local arg = arg
 

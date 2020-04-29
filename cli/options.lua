@@ -1,7 +1,7 @@
-local errors = require "errors"
-local iter = require "iterators"
-local text = require "text"
-local translations = require "translations"
+local errors = require "cli.errors"
+local iter = require "cli.iterators"
+local text = require "cli.text"
+local translations = require "cli.translations"
 
 local format = string.format
 local ipairs = ipairs

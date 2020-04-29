@@ -135,7 +135,7 @@ end
 -- `not_expecting` function with 2 arguments corresponding to each of the "%s"
 -- placeholders inside the translation string. One uses it like this:
 --
---     local translations = require "translations"
+--     local translations = require "cli.translations"
 --
 --     local text = translations.not_expecting("0", "non-zero")
 --

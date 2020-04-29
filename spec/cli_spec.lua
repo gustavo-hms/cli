@@ -11,7 +11,7 @@ local new_printer = function()
 end
 
 insulate("A #program", function()
-	local errors = require "errors"
+	local errors = require "cli.errors"
 
 	it("should #fill the options' values", function()
 		_G.arg = {"--value", "17"}
@@ -38,8 +38,8 @@ insulate("A #program", function()
 			assert.is_nil(tostring(err))
 		end
 		package.loaded.cli = nil
-		package.loaded.parser = nil
-		package.loaded.command = nil
+		package.loaded["cli.parser"] = nil
+		package.loaded["cli.command"] = nil
 		local cli = require "cli"
 
 		cli.program {
@@ -60,8 +60,8 @@ insulate("A #program", function()
 			assert.is_nil(tostring(err))
 		end
 		package.loaded.cli = nil
-		package.loaded.parser = nil
-		package.loaded.command = nil
+		package.loaded["cli.parser"] = nil
+		package.loaded["cli.command"] = nil
 		local cli = require "cli"
 
 		cli.program {
@@ -79,7 +79,7 @@ end)
 
 insulate("A #complete #program", function()
 	it("should run the `#add` command", function()
-		local errors = require "errors"
+		local errors = require "cli.errors"
 		-- Mock errors.exit_with
 		errors.exit_with = function(err)
 			print(tostring(err))
@@ -153,7 +153,7 @@ end)
 
 insulate("A #complete program", function()
 	it("should understand subcommands and positionals", function()
-		local errors = require "errors"
+		local errors = require "cli.errors"
 		errors.exit_with = function(err)
 			print(err)
 			assert.is_false(true) -- `exit_with` shouldn't be called
@@ -208,7 +208,7 @@ end)
 
 insulate("A #program", function()
 	it("should generate a #help message from the spec", function()
-    	local errors = require "errors"
+    	local errors = require "cli.errors"
     	errors.exit_with = function(err)
         	assert.is_nil(tostring(err))
     	end
@@ -221,8 +221,8 @@ insulate("A #program", function()
         	[1] = "--help"
     	}
     	
-    	package.loaded.parser = nil
-    	package.loaded.command = nil
+    	package.loaded["cli.parser"] = nil
+    	package.loaded["cli.command"] = nil
     	package.loaded.cli = nil
     	local cli = require "cli"
     	
@@ -284,7 +284,7 @@ Arguments:
 	end)
 
 	it("should generate a #help message for a program with #only positionals", function()
-		local errors = require "errors"
+		local errors = require "cli.errors"
 		errors.exit_with = function(err)
 			assert.is_nil(tostring(err))
 		end
@@ -297,8 +297,8 @@ Arguments:
 			[1] = "--help"
 		}
 
-		package.loaded.parser = nil
-		package.loaded.command = nil
+		package.loaded["cli.parser"] = nil
+		package.loaded["cli.command"] = nil
 		package.loaded.cli = nil
 		local cli = require "cli"
 
@@ -333,7 +333,7 @@ Arguments:
 	end)
 
 	it("should generate a #help message for a program with only flags", function()
-		local errors = require "errors"
+		local errors = require "cli.errors"
 		errors.exit_with = function(err)
 			assert.is_nil(tostring(err))
 		end
@@ -346,8 +346,8 @@ Arguments:
 			[1] = "--help"
 		}
 
-		package.loaded.parser = nil
-		package.loaded.command = nil
+		package.loaded["cli.parser"] = nil
+		package.loaded["cli.command"] = nil
 		package.loaded.cli = nil
 		local cli = require "cli"
 
@@ -402,7 +402,7 @@ end)
 insulate("A #program with subcommands", function()
 
 	it("should generate a #help message from the spec", function()
-		local errors = require "errors"
+		local errors = require "cli.errors"
 		stub(errors, "exit_with")
 
 		local printer = new_printer()
@@ -413,8 +413,8 @@ insulate("A #program with subcommands", function()
 			[1] = "--help"
 		}
 
-		package.loaded.parser = nil
-		package.loaded.command = nil
+		package.loaded["cli.parser"] = nil
+		package.loaded["cli.command"] = nil
 		package.loaded.cli = nil
 		local cli = require "cli"
 
@@ -477,7 +477,7 @@ to get more details about a specific command.
 	end)
 
 	it("should generate a #help message for the specified command", function()
-		local errors = require "errors"
+		local errors = require "cli.errors"
 
 		local printer = new_printer()
 		_G.io.stdout = printer
@@ -492,8 +492,8 @@ to get more details about a specific command.
 			[2] = "--help"
 		}
 
-		package.loaded.parser = nil
-		package.loaded.command = nil
+		package.loaded["cli.parser"] = nil
+		package.loaded["cli.command"] = nil
 		package.loaded.cli = nil
 		local cli = require "cli"
 
@@ -554,7 +554,7 @@ Arguments:
 	end)
 
 	it("should accept a string as argument", function()
-		local errors = require "errors"
+		local errors = require "cli.errors"
 		stub(errors, "exit_with")
 
 		local printer = new_printer()
@@ -565,8 +565,8 @@ Arguments:
 			[1] = "--help"
 		}
 
-		package.loaded.parser = nil
-		package.loaded.command = nil
+		package.loaded["cli.parser"] = nil
+		package.loaded["cli.command"] = nil
 		package.loaded.cli = nil
 		local cli = require "cli"
 
@@ -620,7 +620,7 @@ to get more details about a specific command.
 end)
 
 insulate("A #program, when finding a #validation #error", function()
-	local errors = require "errors"
+	local errors = require "cli.errors"
 	local cli = require "cli"
 
 	local scenarios = {
@@ -754,8 +754,8 @@ insulate("A #program, when finding a #validation #error", function()
 				end
 
 				_G.arg = scenario.arg
-				package.loaded.parser = nil
-				package.loaded.command = nil
+				package.loaded["cli.parser"] = nil
+				package.loaded["cli.command"] = nil
 				package.loaded.cli = nil
 				cli = require "cli"
 
@@ -792,14 +792,14 @@ if you need some help.
 			[2] = "--unexpected"
 		}
 
-		local errors = require "errors"
+		local errors = require "cli.errors"
 		errors.exit_with = function(err)
 			assert.are.same(expected, tostring(err))
 			error("Terminate execution")
 		end
 
-		package.loaded.parser = nil
-		package.loaded.command = nil
+		package.loaded["cli.parser"] = nil
+		package.loaded["cli.command"] = nil
 		package.loaded.cli = nil
 		local cli = require "cli"
 
@@ -814,7 +814,7 @@ if you need some help.
 end)
 
 insulate("A #program, when finding a #command #error", function()
-	local errors = require "errors"
+	local errors = require "cli.errors"
 	local cli = require "cli"
 
 	local scenarios = {
@@ -849,8 +849,8 @@ insulate("A #program, when finding a #command #error", function()
 				end
 
 				_G.arg = scenario.arg
-				package.loaded.parser = nil
-				package.loaded.command = nil
+				package.loaded["cli.parser"] = nil
+				package.loaded["cli.command"] = nil
 				package.loaded.cli = nil
 				cli = require "cli"
 
@@ -885,14 +885,14 @@ if you need some help.
 			[0] = "program",
 		}
 
-		local errors = require "errors"
+		local errors = require "cli.errors"
 		errors.exit_with = function(err)
 			assert.are.same(expected, tostring(err))
 			error("Terminate execution")
 		end
 
-		package.loaded.parser = nil
-		package.loaded.command = nil
+		package.loaded["cli.parser"] = nil
+		package.loaded["cli.command"] = nil
 		package.loaded.cli = nil
 		local cli = require "cli"
 

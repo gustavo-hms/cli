@@ -1,4 +1,4 @@
-local iter = require "iterators"
+local iter = require "cli.iterators"
 
 describe("The #wrap function", function()
 	it("should wrap a default lua iterator", function()

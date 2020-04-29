@@ -1,5 +1,5 @@
-local iter = require "iterators"
-local translations = require "translations"
+local iter = require "cli.iterators"
+local translations = require "cli.translations"
 
 local arg = arg
 local panic_with_error = error
